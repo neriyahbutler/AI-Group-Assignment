@@ -34,6 +34,9 @@ class Agent(object):
     def get_pos(self):
         return (150 + self.x_move * self.movement, 140 + self.y_move * self.movement)
 
+    def get_coor(self):
+        return (self.x_move, self.y_move)
+
     def get_block_count(self):
         return self.block_count
 
