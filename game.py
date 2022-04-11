@@ -47,6 +47,7 @@ while game_bool:
     win.blit(game_board, (125,125))
     win.blit(male.get_symbol(), male.get_pos())
 
+    pygame.time.wait(50)
     if test_bool:
         if male_turn_bool:
             q_table, game_board_positions, action_to_take = helper_functions.q_learning(male, q_table, game_board_positions, 0.5, 0.5)

@@ -18,18 +18,19 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     agent_pos = agent.get_coor()
     actions = []
     
-    if agent_pos[0] + 1 <= 4 and state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"] == False:
+    print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
+
+    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("east")
-    if agent_pos[0] - 1 >= 0 and state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"] == False:
+    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("west")
-    if agent_pos[1] + 1 <= 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1] + 1)]["occupied"] == False:
+    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("south")
-    if agent_pos[1] - 1 >= 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"] == False:
+    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("north")
         
-    max_val = -1
+    max_val = -99
     prev_max_val = max_val
-    action_index_holder = ["north", "south", "west", "east"]
     action_to_perform = ""
 
     for action in actions:
@@ -38,10 +39,13 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
             prev_max_val = max_val
             action_to_perform = action
 
-    print("Best chosen position is", action_to_perform)
+    print("Action choices are", actions)
+    print("Current action is", action_to_perform)
 
     temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * max_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
+
+    q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
 
     return q_table, state_map, action_to_perform
 
