@@ -20,6 +20,7 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     
     print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
 
+    # Checks to see what actions are possible for the current agent
     if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("east")
     if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
@@ -33,6 +34,7 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     prev_max_val = max_val
     action_to_perform = ""
 
+    # Gets the agent with the max q value
     for action in actions:
         max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
         if max_val != prev_max_val:
@@ -42,11 +44,13 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     print("Action choices are", actions)
     print("Current action is", action_to_perform)
 
+    # Applys the q learning equation
     temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * max_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
 
     q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
 
+    # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
 
