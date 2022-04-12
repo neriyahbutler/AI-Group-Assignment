@@ -6,6 +6,10 @@ pygame.init()
 
 from male import Male
 from female import Female
+
+from pickup_block import PickupBlock
+from dropoff_block import DropoffBlock
+
 import helper_functions
 
 base_path = os.path.dirname(os.path.abspath(__file__))
@@ -35,17 +39,52 @@ for x in range(0,5):
             "pickup": False
         }
 
+
+pickup_positions = [(4,2), (1,3)]
+dropoff_positions = [(4,0), (2,2)]
+
+
+for pos in pickup_positions:
+    temp_pickup_block = PickupBlock(2, (50, 205, 50))
+    temp_pickup_block.set_pos(pos)
+    game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"] = temp_pickup_block
+    game_board_positions['{},{}'.format(pos[0], pos[1])]["pickup"] = True
+    game_board_positions['{},{}'.format(pos[0], pos[1])]["reward"] = 13
+
+for pos in dropoff_positions:
+    temp_dropoff_block = DropoffBlock(2, (138, 43, 226))
+    temp_dropoff_block.set_pos(pos)
+    game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"] = temp_dropoff_block
+    game_board_positions['{},{}'.format(pos[0], pos[1])]["pickup"] = True
+    game_board_positions['{},{}'.format(pos[0], pos[1])]["reward"] = 13
+
+
 test_bool = True
 male_turn_bool = True
+
 
 while game_bool:
     win.fill((0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_bool = False
+            print(q_table)
     
     win.blit(game_board, (125,125))
     win.blit(male.get_symbol(), male.get_pos())
+
+    for pos in pickup_positions:
+        win.blit(
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
+        )
+
+    for pos in dropoff_positions:
+        win.blit(
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
+        )
+
 
     pygame.time.wait(50)
     if test_bool:
