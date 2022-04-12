@@ -20,6 +20,9 @@ class Block(object):
     def get_symbol(self):
         return self.symbol
 
+    def set_count(self, count):
+        self.count = count
+
     def update_symbol(self):
         self.symbol = font.render(str(self.count), 1, self.color)
 

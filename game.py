@@ -54,7 +54,9 @@ for x in range(0,5):
         }
 
 for pos in pickup_positions:
-    temp_pickup_block = PickupBlock(2, (50, 205, 50))
+    temp_pickup_block = PickupBlock(count=2, color=(50, 205, 50))
+    temp_pickup_block.set_count(2)
+    temp_pickup_block.update_symbol()
     temp_pickup_block.set_pos(pos)
     game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"] = temp_pickup_block
     game_board_positions['{},{}'.format(pos[0], pos[1])]["pickup"] = True
@@ -62,6 +64,8 @@ for pos in pickup_positions:
 
 for pos in dropoff_positions:
     temp_dropoff_block = DropoffBlock(2, (138, 43, 226))
+    temp_dropoff_block.set_count(2)
+    temp_dropoff_block.update_symbol()
     temp_dropoff_block.set_pos(pos)
     game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"] = temp_dropoff_block
     game_board_positions['{},{}'.format(pos[0], pos[1])]["pickup"] = True
@@ -103,7 +107,8 @@ while game_bool:
             game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
         )
 
-    # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
+    # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
+    # each move, modify the number
     pygame.time.wait(50)
     
     if test_bool:
@@ -132,6 +137,7 @@ while game_bool:
                 female.move_right()
             else:
                 female.move_left()
+                
     pygame.display.update()
 
 pygame.quit()
