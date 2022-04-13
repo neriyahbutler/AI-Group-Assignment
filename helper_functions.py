@@ -53,6 +53,25 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy):
+    agent_pos = agent.get_coor()
+    actions = []
+    
+    print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
+    
+    # Checks to see what actions are possible for the current agent
+    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("east")
+    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("west")
+    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("south")
+    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("north")
+        
+    #apply the sarsa policy   
+    
+    
 
 def generate_qtable():
     q_table = []
