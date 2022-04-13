@@ -1,5 +1,6 @@
 import pygame
 import os
+import time
 import numpy as np
 
 pygame.init()
@@ -45,7 +46,7 @@ dropoff_positions = [(4,0), (2,2)]
 # Goes through every position in the matrix and sets up its respected position in the map
 game_board_positions = {}
 for x in range(0,5):
-    for y in range(0, 5):
+    for y in range(0,5):
         game_board_positions['{},{}'.format(x, y)] = {
             "reward": -1,
             "occupied": False,
@@ -76,62 +77,77 @@ male_turn_bool = True
 
 
 while game_bool:
-    # Fills out the background of the visualization window with black
-    win.fill((0))
+    current_policy = input("Choose a Type (PRandom, PExploit, PGreedy): ")
+    if not helper_functions.policy_verify(current_policy):
+        print("Not a Valid Policy, Please Try Again!")
+        continue
+    steps = int(input("Enter a Number of Steps: "))
+    if not helper_functions.step_verify(steps):
+        print("Not a Valid Number of Steps, Please Try Again")
+        continue
+    while test_bool:
+        # Fills out the background of the visualization window with black
+        win.fill((0))
 
-    # For handling closing out the visualization window
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_bool = False
-            print(q_table)
-    
-    # This is for drawing the objects onto the vizualization window (the "win" variable)
-    # Basically "win.blit(...)"" is just for drawing objects in the first parameter at the position
-    # specified in the 2nd parameter
-    win.blit(game_board, (125,125))
-    win.blit(male.get_symbol(), male.get_pos())
+        # For handling closing out the visualization window
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_bool = False
+                print(q_table)
 
-    for pos in pickup_positions:
-        win.blit(
-            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
-            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
-        )
+        # This is for drawing the objects onto the vizualization window (the "win" variable)
+        # Basically "win.blit(...)"" is just for drawing objects in the first parameter at the position
+        # specified in the 2nd parameter
+        win.blit(game_board, (125, 125))
+        win.blit(male.get_symbol(), male.get_pos())
 
-    for pos in dropoff_positions:
-        win.blit(
-            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
-            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
-        )
+        for pos in pickup_positions:
+            win.blit(
+                game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
+                game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
+            )
 
-    # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
-    pygame.time.wait(50)
-    
-    if test_bool:
-        if male_turn_bool:
-            q_table, game_board_positions, action_to_take = helper_functions.q_learning(male, q_table, game_board_positions, 0.5, 0.5)
-            # male_turn_bool = False
+        for pos in dropoff_positions:
+            win.blit(
+                game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
+                game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
+            )
 
-            if action_to_take == "north":
-                male.move_up()
-            elif action_to_take == "south":
-                male.move_down()
-            elif action_to_take == "east":
-                male.move_right()
+        # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
+        pygame.time.wait(100)
+
+        while steps > 0:
+            if male_turn_bool:
+                q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table, game_board_positions, 0.5, 0.5)
+                # male_turn_bool = False
+
+                if action_to_take == "north":
+                    male.move_up()
+                elif action_to_take == "south":
+                    male.move_down()
+                elif action_to_take == "east":
+                    male.move_right()
+                else:
+                    male.move_left()
+
+                time.sleep(0.1)
+                steps -= 1
             else:
-                male.move_left()
-        else:
-            # Runs q learning algorithm and gets the updated values produced from said function
-            q_table, game_board_positions, action_to_take = helper_functions.q_learning(female, q_table, game_board_positions, 0.5, 0.5)
-            male_turn_bool = True
+                # Runs q learning algorithm and gets the updated values produced from said function
+                q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table, game_board_positions, 0.5, 0.5)
+                male_turn_bool = True
 
-            if action_to_take == "north":
-                female.move_up()
-            elif action_to_take == "south":
-                female.move_down()
-            elif action_to_take == "east":
-                female.move_right()
-            else:
-                female.move_left()
-    pygame.display.update()
+                if action_to_take == "north":
+                    female.move_up()
+                elif action_to_take == "south":
+                    female.move_down()
+                elif action_to_take == "east":
+                    female.move_right()
+                else:
+                    female.move_left()
+
+                steps -= 1
+
+            pygame.display.update()
 
 pygame.quit()
