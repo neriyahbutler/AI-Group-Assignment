@@ -13,21 +13,27 @@ class Block(object):
     movement = 40
 
     def __init__(self, count = 0, color = (0,0,0)):
-        self.count = 0
+        self.block_count = 0
         self.color = color
-        self.symbol = font.render(str(self.count), 1, self.color)
+        self.symbol = font.render(str(self.block_count), 1, self.color)
+
+    def set_capacity(self, capacity):
+        self.capacity = capacity
+
+    def get_capacity(self):
+        return self.capacity
 
     def get_symbol(self):
         return self.symbol
 
-    def set_count(self, count):
-        self.count = count
+    def set_block_count(self, count):
+        self.block_count = count
 
     def update_symbol(self):
-        self.symbol = font.render(str(self.count), 1, self.color)
+        self.symbol = font.render(str(self.block_count), 1, self.color)
 
-    def get_count(self):
-        return self.count
+    def get_block_count(self):
+        return self.block_count
 
     def set_pos(self, pos):
         self.x_move = pos[0]
