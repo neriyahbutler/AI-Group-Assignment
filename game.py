@@ -89,8 +89,6 @@ for pos in dropoff_positions:
 test_bool = True
 male_turn_bool = True
 
-
-
 while game_bool:
     # Fills out the background of the visualization window with black
     win.fill((0))
@@ -129,17 +127,21 @@ while game_bool:
 
     if test_bool:
         if male_turn_bool:
+            current_pos = male.get_coor()
+            current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
+
+            # Sets the current position that the agent is one to not be occupied as the q learning function will move it to another position
+            game_board_positions[current_pos_as_key]["occupied"] = False
+
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             q_table, game_board_positions, action_to_take = helper_functions.q_learning(male, q_table, game_board_positions, 0.5, 0.5)
             # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
 
-
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
             # 1 block and is the dropoff spot not at full capacity?")
-            current_pos = male.get_coor()
-            current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-
+            
+             
             # Checking if position is pickup spot
             if game_board_positions[current_pos_as_key]["pickup"] == True:
                 # Checks to see if pickup action is possible
@@ -161,6 +163,9 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
 
+            # Sets the new position that the agent is one to be specified as occupied
+            game_board_positions[current_pos_as_key]["occupied"] = False
+
             if action_to_take == "north":
                 male.move_up()
             elif action_to_take == "south":
@@ -169,6 +174,11 @@ while game_bool:
                 male.move_right()
             else:
                 male.move_left()
+
+            current_pos = male.get_coor()
+            current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
+
+            game_board_positions[current_pos_as_key]["occupied"] = True
         else:
             # Runs q learning algorithm and gets the updated values produced from said function
             q_table, game_board_positions, action_to_take = helper_functions.q_learning(female, q_table, game_board_positions, 0.5, 0.5)
