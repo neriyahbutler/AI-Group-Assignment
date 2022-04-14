@@ -32,13 +32,13 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     actions = []
     
     # Checks to see what actions are possible for the current agent
-    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"] == False:
         actions.append("east")
-    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0] - 1, agent_pos[1])]["occupied"] == False:
         actions.append("west")
-    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1] + 1)]["occupied"] == False:
         actions.append("south")
-    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"] == False:
         actions.append("north")
         
     max_val = -99
@@ -71,6 +71,12 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     # dropoff/pickup a block
     if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
         temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+
+    if action_to_perform == '':
+        print("ACTION TO PERFORM IS BLANK!\n")
+        print("Position of the agent: {}\n".format(agent.get_coor()))
+        print("The list of actions:", actions)
+        print("The state map:\n", state_map)
 
     temporal_difference = temp_reward + discount_factor * max_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
@@ -108,15 +114,19 @@ def reset_world(male, female, state_map, pickup_positions, dropoff_positions, pi
     # Resets the block count for the pickup spots
     for pos in pickup_positions:
         state_map['{},{}'.format(pos[0], pos[1])]["special_block"].set_block_count(pickup_max_count)
-        state_map['{},{}'.format(pos[0], pos[1])]["occupied"] = False
 
     # Resets block count back to 0 for the dropoff spots
     for pos in dropoff_positions:
         state_map['{},{}'.format(pos[0], pos[1])]["special_block"].set_block_count(0)
-        state_map['{},{}'.format(pos[0], pos[1])]["occupied"] = False
+
+    for key in state_map:
+        state_map[key]["occupied"] = False
 
     # Resets the agent's position back to its initial spot
     male.set_block_count(0)
-    male.set_coor(init_positions)
+    male.set_coor(init_positions[0])
+
+    female.set_block_count(0)
+    female.set_coor(init_positions[1])
 
     return male, female, state_map
