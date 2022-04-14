@@ -48,6 +48,7 @@ male_start_position = [0,0]
 
 male.set_coor(male_start_position)
 
+# Changes the amount of blocks at that pickup spot and capacity of the dropoff spot
 pickup_count = 2
 dropoff_count_max = 2
 
@@ -123,7 +124,7 @@ while game_bool:
 
     # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
     # each move, modify the number
-    pygame.time.wait(1)
+    pygame.time.wait(10)
     
 
     if test_bool:

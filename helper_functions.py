@@ -72,13 +72,6 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
         temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
 
-    # if temp_reward == 13:
-    #     print("Rewarded 13\n Agent count: {}\nBlock info: {}\nBlock count: {}\n".format(
-    #         agent.get_block_count(),
-    #         state_map["{},{}".format(agent_pos[0], agent_pos[1])],
-    #         state_map["{},{}".format(agent_pos[0], agent_pos[1])]["special_block"].get_block_count()
-    #     ))
-
     temporal_difference = temp_reward + discount_factor * max_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
 
