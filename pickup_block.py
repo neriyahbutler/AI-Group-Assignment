@@ -1,5 +1,5 @@
 import block
 
 class PickupBlock(block.Block):
-    def decrease_count(self):
-        self.count -= 1
+    def decrease_block_count(self):
+        self.block_count -= 1

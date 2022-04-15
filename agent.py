@@ -32,10 +32,17 @@ class Agent(object):
             self.y_move -= 1
 
     def get_pos(self):
-        return (150 + self.x_move * self.movement, 140 + self.y_move * self.movement)
+        return [150 + self.x_move * self.movement, 140 + self.y_move * self.movement]
 
     def get_coor(self):
-        return (self.x_move, self.y_move)
+        return [self.x_move, self.y_move]
+
+    def set_coor(self, pos):
+        self.x_move = pos[0]
+        self.y_move = pos[1]
+
+    def set_block_count(self, block_count):
+        self.block_count = block_count
 
     def get_block_count(self):
         return self.block_count
@@ -43,5 +50,5 @@ class Agent(object):
     def increase_block_count(self):
         self.block_count += 1
 
-    def decrase_block_count(self):
+    def decrease_block_count(self):
         self.block_count -= 1
