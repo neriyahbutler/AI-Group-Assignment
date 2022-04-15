@@ -75,17 +75,28 @@ for pos in dropoff_positions:
 test_bool = True
 male_turn_bool = True
 
+policy_provided = False
+steps_provided = False
 
-while game_bool:
+current_policy = ""
+steps = 0
+
+while policy_provided is False and steps_provided is False:
     current_policy = input("Choose a Type (PRandom, PExploit, PGreedy): ")
     if not helper_functions.policy_verify(current_policy):
         print("Not a Valid Policy, Please Try Again!")
         continue
+    else:
+        policy_provided = True
     steps = int(input("Enter a Number of Steps: "))
     if not helper_functions.step_verify(steps):
         print("Not a Valid Number of Steps, Please Try Again")
         continue
-    while test_bool:
+    else:
+        steps_provided = True
+
+while game_bool:
+    if test_bool:
         # Fills out the background of the visualization window with black
         win.fill((0))
 
@@ -116,38 +127,41 @@ while game_bool:
         # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
         pygame.time.wait(100)
 
-        while steps > 0:
-            if male_turn_bool:
-                q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table, game_board_positions, 0.5, 0.5)
-                # male_turn_bool = False
+        if male_turn_bool:
+            q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table, game_board_positions, 0.5, 0.5)
+            # male_turn_bool = False
 
-                if action_to_take == "north":
-                    male.move_up()
-                elif action_to_take == "south":
-                    male.move_down()
-                elif action_to_take == "east":
-                    male.move_right()
-                else:
-                    male.move_left()
-
-                time.sleep(0.1)
-                steps -= 1
+            if action_to_take == "north":
+                male.move_up()
+            elif action_to_take == "south":
+                male.move_down()
+            elif action_to_take == "east":
+                male.move_right()
             else:
-                # Runs q learning algorithm and gets the updated values produced from said function
-                q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table, game_board_positions, 0.5, 0.5)
-                male_turn_bool = True
+                male.move_left()
 
-                if action_to_take == "north":
-                    female.move_up()
-                elif action_to_take == "south":
-                    female.move_down()
-                elif action_to_take == "east":
-                    female.move_right()
-                else:
-                    female.move_left()
+            time.sleep(0.001)
+            steps -= 1
+        else:
+            # Runs q learning algorithm and gets the updated values produced from said function
+            q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table, game_board_positions, 0.5, 0.5)
+            male_turn_bool = True
 
-                steps -= 1
+            if action_to_take == "north":
+                female.move_up()
+            elif action_to_take == "south":
+                female.move_down()
+            elif action_to_take == "east":
+                female.move_right()
+            else:
+                female.move_left()
 
-            pygame.display.update()
+            steps -= 1
+
+    if steps <= 0:
+        test_bool = False
+        game_bool = False
+        print(q_table)
+    pygame.display.update()
 
 pygame.quit()
