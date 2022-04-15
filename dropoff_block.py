@@ -1,5 +1,5 @@
 import block
 
 class DropoffBlock(block.Block):
-    def increase_count(self):
-        self.count += 1
+    def increase_block_count(self):
+        self.block_count += 1
