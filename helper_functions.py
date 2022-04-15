@@ -63,6 +63,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
         actions.append("north")
         
     max_val = -99
+    prev_max_val = max_val
     val_to_use = 0
     best_action = ""
     action_to_perform = ""
@@ -81,7 +82,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
             duplicate_actions.append(action)
             
         if len(duplicate_actions) > 1:
-        best_action = random.choice(duplicate_actions)
+            best_action = random.choice(duplicate_actions)
     
     if mode == "PRandom":
         action_to_perform = random.choice(actions)

@@ -169,6 +169,7 @@ while game_bool:
         # specified in the 2nd parameter
         win.blit(game_board, (125, 125))
         win.blit(male.get_symbol(), male.get_pos())
+        win.blit(female.get_symbol(), female.get_pos())
 
         for pos in pickup_positions:
             win.blit(
@@ -183,7 +184,6 @@ while game_bool:
             )
 
         # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
-        pygame.time.wait(100)
 
         if male_turn_bool:
             current_pos = male.get_coor()
@@ -209,6 +209,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.increase_block_count()
+                    steps -= 1
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -220,6 +221,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
+                    steps -= 1
 
             # Sets the new position that the agent is one to be specified as occupied
             game_board_positions[current_pos_as_key]["occupied"] = False
@@ -233,6 +235,8 @@ while game_bool:
             else:
                 male.move_left()
             steps -= 1
+
+            male_turn_bool = False
         else:
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
@@ -241,7 +245,7 @@ while game_bool:
             game_board_positions[current_pos_as_key]["occupied"] = False
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
-            q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table, game_board_positions, 0.5, 0.5)
+            q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female, game_board_positions, 0.5, 0.5)
             # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
@@ -257,6 +261,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.increase_block_count()
+                    steps -= 1
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -268,6 +273,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.decrease_block_count()
+                    steps -= 1
 
             # Sets the new position that the agent is one to be specified as occupied
             game_board_positions[current_pos_as_key]["occupied"] = False
