@@ -152,7 +152,7 @@ while game_bool:
 
     # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
     # each move, modify the number
-    pygame.time.wait(10)
+    pygame.time.wait(100)
     
     if test_bool:
         # Fills out the background of the visualization window with black
@@ -294,7 +294,7 @@ while game_bool:
 
             game_board_positions[current_pos_as_key]["occupied"] = True
             male_turn_bool = True
-            
+        
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):
         male, female, game_board_positions = helper_functions.reset_world(male, female, game_board_positions, pickup_positions, dropoff_positions, pickup_count, [male_start_position, female_start_position])
@@ -306,7 +306,7 @@ while game_bool:
     if steps <= 0:
         test_bool = False
         game_bool = False
-        print(q_table)
+        print(q_table) 
         
     pygame.display.update()
 
