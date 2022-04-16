@@ -1,6 +1,7 @@
 from turtle import pos
 import numpy as np
 import random
+from datetime import datetime
 
 def set_points_pickup(points_map, points_to_change_arr):
     for point in points_to_change_arr:
@@ -86,9 +87,10 @@ def q_learning(agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
-def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy):
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy,steps):
     agent_pos = agent.get_coor()
     actions = []
+    print("steps: " + str(steps))
     
     print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
     
@@ -102,9 +104,51 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("north")
         
-    #apply the sarsa policy   
+    #apply the sarsa policy  
+    max_val = -99
+    prev_max_val = max_val
+
+    action_to_perform = ""
+    max_action=""
+    for action in actions:
+        max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
+        if max_val > prev_max_val:
+            prev_max_val = max_val
+            max_action = action
+    print("max action :" + max_action + "\n max val: " + str(max_val))
+    print("Action choices are", actions)
+    #if policy = .8 then 80% of the time algorithm would pick max_val
+    random.seed(datetime.now())
+    randomgen = random.uniform(0,1)
+    #print("PRANDOM active")
+    
+    print("policy is " + str(policy) + "\n probability is: " + str(randomgen))
+    if randomgen < policy:
+        actions.remove(max_action)
+        Next_val, action_to_perform = random_action(actions,q_table,agent_pos)
+    else:
+        Next_val = max_val
+        action_to_perform = max_action
     
     
+    print("Current action is", action_to_perform)
+    
+    #apply q learning equation
+    temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * Next_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
+    new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
+    
+    return q_table, state_map, action_to_perform
+
+    
+def random_action(actions, q_table, agent_pos):
+    num = len(actions)
+    
+    random.seed(datetime.now())
+    index = random.randrange(0,num)
+    
+    
+    
+    return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
 
 def generate_qtable():
     q_table = []

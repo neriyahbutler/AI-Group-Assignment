@@ -143,6 +143,9 @@ while game_bool:
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             q_table, game_board_positions, action_to_take = helper_functions.q_learning(male, q_table, game_board_positions, 0.5, 0.5)
+            
+            #q_table, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table, game_board_positions, 0.5, 0.5,.3)
+            
             # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
@@ -158,6 +161,8 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.increase_block_count()
+                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() <= 0:
+                    game_board_positions[current_pos_as_key]["reward"] = -13
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -169,10 +174,15 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
+                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() == game_board_positions[current_pos_as_key]["special_block"].get_capacity():
+                    game_board_positions[current_pos_as_key]["reward"] = -13
 
             # Sets the new position that the agent is one to be specified as occupied
             game_board_positions[current_pos_as_key]["occupied"] = False
 
+            
+            #male_turn_bool = False
+            print("Male moving!")
             if action_to_take == "north":
                 male.move_up()
             elif action_to_take == "south":
@@ -196,7 +206,8 @@ while game_bool:
             game_board_positions[current_pos_as_key]["occupied"] = False
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
-            q_table_female, game_board_positions, action_to_take = helper_functions.q_learning(female, q_table_female, game_board_positions, 0.5, 0.5)
+            #q_table_female, game_board_positions, action_to_take = helper_functions.q_learning(female, q_table_female, game_board_positions, 0.5, 0.5)
+            q_table, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table, game_board_positions, 0.5, 0.5,.2, female.get_Step())
             # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
@@ -212,6 +223,8 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.increase_block_count()
+                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() <= 0:
+                    game_board_positions[current_pos_as_key]["reward"] = -13
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -223,10 +236,18 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.decrease_block_count()
+                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() == game_board_positions[current_pos_as_key]["special_block"].get_capacity():
+                    game_board_positions[current_pos_as_key]["reward"] = -13
+
 
             # Sets the new position that the agent is one to be specified as occupied
             game_board_positions[current_pos_as_key]["occupied"] = False
 
+            # Runs q learning algorithm and gets the updated values produced from said function
+            
+            
+            male_turn_bool = True
+            print("Female moving!")
             if action_to_take == "north":
                 female.move_up()
             elif action_to_take == "south":
@@ -236,6 +257,8 @@ while game_bool:
             else:
                 female.move_left()
 
+            female.increment_step()
+            
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
