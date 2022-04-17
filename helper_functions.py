@@ -81,10 +81,11 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
             duplicate_actions = [best_action]
         else:
             duplicate_actions.append(action)
-            
-        if len(duplicate_actions) > 1:
-            best_action = random.choice(duplicate_actions)
-    
+        
+    if len(duplicate_actions) > 1:
+        best_action = random.choice(duplicate_actions)
+
+
     if mode == "PRandom":
         action_to_perform = random.choice(actions)
         val_to_use = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
@@ -117,12 +118,6 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # dropoff/pickup a block
     if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
         temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
-
-    if action_to_perform == '':
-        print("ACTION TO PERFORM IS BLANK!\n")
-        print("Position of the agent: {}\n".format(agent.get_coor()))
-        print("The list of actions:", actions)
-        print("The state map:\n", state_map)
 
     temporal_difference = temp_reward + discount_factor * val_to_use - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
