@@ -74,14 +74,14 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # that have duplicate q values
     for action in actions:
         max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
-        if max_val != prev_max_val:
+        if max_val > prev_max_val:
             prev_max_val = max_val
             best_action = action
             duplicate_actions = [best_action]
-        else:
+        elif max_val == q_table[agent_pos[0]][agent_pos[1]][action]:
             duplicate_actions.append(action)
         
-    if len(duplicate_actions) > 1:
+    if len(duplicate_actions) > 1 and max_val == prev_max_val:
         best_action = random.choice(duplicate_actions)
 
 
@@ -117,7 +117,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # dropoff/pickup a block
     if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
         temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
-
+        
     temporal_difference = temp_reward + discount_factor * val_to_use - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
 
@@ -165,8 +165,10 @@ def reset_world(male, female, state_map, pickup_positions, dropoff_positions, pi
     # Resets the agent's position back to its initial spot
     male.set_block_count(0)
     male.set_coor(init_positions[0])
+    state_map["{},{}".format(init_positions[0][0], init_positions[0][1])]["occupied"] = True
 
     female.set_block_count(0)
     female.set_coor(init_positions[1])
+    state_map["{},{}".format(init_positions[1][0], init_positions[1][1])]["occupied"] = True
 
     return male, female, state_map

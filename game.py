@@ -33,11 +33,14 @@ win = pygame.display.set_mode((width, height))
 male = Male()
 female = Female()
 
+same_pos_cnt = 0
 
 # Creates q table we need
-q_table = helper_functions.generate_qtable()
-q_table_female = helper_functions.generate_qtable()
+q_table_male_pickup = helper_functions.generate_qtable()
+q_table_male_dropoff = helper_functions.generate_qtable()
 
+q_table_female_pickup = helper_functions.generate_qtable()
+q_table_female_dropoff = helper_functions.generate_qtable()
 
 #  All the positions we need for the pickup and dropoff blocks
 #  In addition to this, it sets all the positions in the "game_board_positions" dictionary to have
@@ -69,8 +72,6 @@ for x in range(0,5):
 
 game_board_positions['{},{}'.format(male_start_position[0], male_start_position[1])]['occupied'] = True
 game_board_positions['{},{}'.format(female_start_position[0], female_start_position[1])]['occupied'] = True
-
-print(game_board_positions, "\n")
 
 for pos in pickup_positions:
     temp_pickup_block = PickupBlock(count=2, color=(50, 205, 50)) # Green
@@ -126,7 +127,11 @@ while game_bool:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_bool = False
-            print(q_table)
+            print("Male Q-Table Dropoff\n", q_table_male_dropoff, "\n")
+            print("Male Q-Table Pickup\n", q_table_male_pickup, "\n")
+
+            print("Female Q-Table Dropoff\n", q_table_female_dropoff, "\n")
+            print("Female Q-Table Pickup\n", q_table_female_pickup, "\n")
     
 
     # This is for drawing the objects onto the vizualization window (the "win" variable)
@@ -152,17 +157,11 @@ while game_bool:
 
     # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
     # each move, modify the number
-    pygame.time.wait(100)
+    pygame.time.wait(1)
     
     if test_bool:
         # Fills out the background of the visualization window with black
         win.fill((0))
-
-        # For handling closing out the visualization window
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_bool = False
-                print(q_table)
 
         # This is for drawing the objects onto the vizualization window (the "win" variable)
         # Basically "win.blit(...)"" is just for drawing objects in the first parameter at the position
@@ -193,13 +192,15 @@ while game_bool:
             game_board_positions[current_pos_as_key]["occupied"] = False
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
-            q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table, game_board_positions, 0.5, 0.5)
-            # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
+            if male.get_block_count() == 0:
+                q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, 0.5, 0.5)
+            else:
+                q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
             # 1 block and is the dropoff spot not at full capacity?")
-                         
+            
             # Checking if position is pickup spot
             if game_board_positions[current_pos_as_key]["pickup"] == True:
                 # Checks to see if pickup action is possible
@@ -224,7 +225,6 @@ while game_bool:
                     steps -= 1
 
             # Sets the new position that the agent is one to be specified as occupied
-            game_board_positions[current_pos_as_key]["occupied"] = False
             
             if action_to_take == "north":
                 male.move_up()
@@ -236,6 +236,10 @@ while game_bool:
                 male.move_left()
             steps -= 1
 
+            current_pos = male.get_coor()
+            current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
+
+            game_board_positions[current_pos_as_key]["occupied"] = True
             male_turn_bool = False
         else:
             current_pos = female.get_coor()
@@ -245,7 +249,10 @@ while game_bool:
             game_board_positions[current_pos_as_key]["occupied"] = False
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
-            q_table, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female, game_board_positions, 0.5, 0.5)
+            if female.get_block_count() == 1:
+                q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
+            else:
+                q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, 0.5, 0.5)
             # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
@@ -275,9 +282,6 @@ while game_bool:
                     female.decrease_block_count()
                     steps -= 1
 
-            # Sets the new position that the agent is one to be specified as occupied
-            game_board_positions[current_pos_as_key]["occupied"] = False
-            
             if action_to_take == "north":
                 female.move_up()
             elif action_to_take == "south":
@@ -306,8 +310,15 @@ while game_bool:
     if steps <= 0:
         test_bool = False
         game_bool = False
-        print(q_table) 
+        print("Male Q-Table Dropoff\n", q_table_male_dropoff, "\n")
+        print("Male Q-Table Pickup\n", q_table_male_pickup, "\n")
+
+        print("Female Q-Table Dropoff\n", q_table_female_dropoff, "\n")
+        print("Female Q-Table Pickup\n", q_table_female_pickup, "\n")
         
+    if male.get_coor() == female.get_coor():
+        same_pos_cnt += 1
+    
     pygame.display.update()
 
 pygame.quit()
