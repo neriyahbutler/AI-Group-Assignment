@@ -183,6 +183,8 @@ while game_bool:
                 game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
             )
 
+        helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, win)
+
         # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
 
         if male_turn_bool:

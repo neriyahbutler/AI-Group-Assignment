@@ -1,9 +1,18 @@
 import random
-from turtle import pos
-
 
 import numpy as np
 import random
+
+import os
+import pygame
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+
+font_path = os.path.join(base_path, "./font/Joystix.ttf")
+font = pygame.font.Font(font_path, 35)
+
+font_details = pygame.font.Font(font_path, 12)
+
 
 def set_points_pickup(points_map, points_to_change_arr):
     for point in points_to_change_arr:
@@ -170,3 +179,27 @@ def reset_world(male, female, state_map, pickup_positions, dropoff_positions, pi
     female.set_coor(init_positions[1])
 
     return male, female, state_map
+
+
+def display_game_details(male, female, dropoff_capacity, pickup_capacity, window):
+    male_count = font_details.render("Male block count = {}".format(male.get_block_count()), 1, (255, 255, 255))
+    female_count = font_details.render("Female block count = {}".format(female.get_block_count()), 1, (255, 255, 255))
+
+    dropoff_capacity_details = font_details.render("Dropoff capacity = {}".format(dropoff_capacity), 1, (255, 255, 255))
+    pickup_capacity_details = font_details.render("Pickup max count = {}".format(pickup_capacity), 1, (255, 255, 255))
+
+    male_details = font_details.render("Male = Blue", 1, (0, 0, 255))
+    female_details = font_details.render("Female = Pink", 1, (255, 105, 180))
+    pickup_details = font_details.render("Pickup = Green", 1, (50, 205, 50))
+    dropoff_details = font_details.render("Dropoff = Purple", 1, (138, 43, 226))
+
+    window.blit(male_count, (20,420))
+    window.blit(female_count, (20, 440))
+
+    window.blit(dropoff_capacity_details, (280, 420))
+    window.blit(pickup_capacity_details, (280, 440))
+
+    window.blit(pickup_details, (80, 40))
+    window.blit(dropoff_details, (80, 60))
+    window.blit(male_details, (290, 40))
+    window.blit(female_details, (290, 60))
