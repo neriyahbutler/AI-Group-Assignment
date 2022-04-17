@@ -144,18 +144,29 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("north")
         
-    #apply the sarsa policy  
     max_val = -99
     prev_max_val = max_val
-
+    val_to_use = 0
+    best_action = ""
     action_to_perform = ""
-    max_action=""
+
+    duplicate_actions = [best_action]
+
+    # Gets the agent with the max q value while collecting a list of actions 
+    # that have duplicate q values
     for action in actions:
         max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
-        if max_val > prev_max_val:
+        if max_val != prev_max_val:
             prev_max_val = max_val
-            max_action = action
-    print("max action :" + max_action + "\n max val: " + str(max_val))
+            best_action = action
+            duplicate_actions = [best_action]
+        else:
+            duplicate_actions.append(action)
+        
+    if len(duplicate_actions) > 1:
+        best_action = random.choice(duplicate_actions)
+
+    print("max action :" + best_action + "\n max val: " + str(max_val))
     print("Action choices are", actions)
     #if policy = .8 then 80% of the time algorithm would pick max_val
     random.seed(datetime.now())
@@ -164,11 +175,11 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     
     print("policy is " + str(policy) + "\n probability is: " + str(randomgen))
     if randomgen < policy:
-        actions.remove(max_action)
+        actions.remove(best_action)
         Next_val, action_to_perform = random_action(actions,q_table,agent_pos)
     else:
         Next_val = max_val
-        action_to_perform = max_action
+        action_to_perform = best_action
     
     
     print("Current action is", action_to_perform)

@@ -212,8 +212,6 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.increase_block_count()
                     steps -= 1
-                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() <= 0:
-                    game_board_positions[current_pos_as_key]["reward"] = -13
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -226,11 +224,6 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
                     steps -= 1
-                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() == game_board_positions[current_pos_as_key]["special_block"].get_capacity():
-                    game_board_positions[current_pos_as_key]["reward"] = -13
-
-            # Sets the new position that the agent is one to be specified as occupied
-            game_board_positions[current_pos_as_key]["occupied"] = False
 
             
             #male_turn_bool = False
@@ -278,8 +271,6 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.increase_block_count()
                     steps -= 1
-                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() <= 0:
-                    game_board_positions[current_pos_as_key]["reward"] = -13
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -292,15 +283,8 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.decrease_block_count()
                     steps -= 1
-                elif game_board_positions[current_pos_as_key]["special_block"].get_block_count() == game_board_positions[current_pos_as_key]["special_block"].get_capacity():
-                    game_board_positions[current_pos_as_key]["reward"] = -13
 
 
-            # Sets the new position that the agent is one to be specified as occupied
-            game_board_positions[current_pos_as_key]["occupied"] = False
-
-            # Runs q learning algorithm and gets the updated values produced from said function
-            
             
             male_turn_bool = True
             print("Female moving!")
