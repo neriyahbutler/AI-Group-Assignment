@@ -6,6 +6,8 @@ import random
 import os
 import pygame
 
+import math
+
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 font_path = os.path.join(base_path, "./font/Joystix.ttf")
@@ -205,3 +207,132 @@ def display_game_details(male, female, dropoff_capacity, pickup_capacity, window
     window.blit(dropoff_details, (80, 60))
     window.blit(male_details, (290, 40))
     window.blit(female_details, (290, 60))
+
+
+def draw_arrow(screen, color, start, end):
+    pygame.draw.line(screen, color, start, end, 2)
+    rotation = math.degrees(math.atan2(start[1]-end[1], end[0]-start[0])) + 90
+    pygame.draw.polygon(screen, color, ((end[0] + 5 * math.sin(math.radians(rotation)), end[1] + 5 * math.cos(math.radians(rotation))), (end[0] + 5 * math.sin(math.radians(rotation - 120)), end[1]+ 5 *math.cos(math.radians(rotation-120))), (end[0]+ 5 *math.sin(math.radians(rotation+120)), end[1]+ 5 *math.cos(math.radians(rotation+120)))))
+
+
+def calculate_new_pos(action, pos):
+    x = pos[0]
+    y = pos[1]
+
+    if action == "north":
+        return ((165 + x * 40), (155 + (y - 0.25) * 40))
+    if action == "south":
+        return ((165 + x * 40), (155 + (y + 0.25) * 40))
+    if action == "east":
+        return ((165 + (x + 0.25) * 40), (155 + y * 40))
+    return ((165+ (x - 0.25) * 40), (155 + y * 40))
+
+
+def display_arrows(win, q_table):
+    for x in range(0, len(q_table)):
+        for y in range(0, len(q_table)):
+            actions = []
+            if x != 0:
+                actions.append("west")
+            if y != 0:
+                actions.append("north")
+            if x != 4:
+                actions.append("east")
+            if y != 4:
+                actions.append("south")
+
+            if len(actions) > 0:
+                max_val = -99
+                prev_max_val = max_val
+                duplicate_actions = [max_val]
+
+                for action in actions:
+                    max_val = max(max_val, q_table[x][y][action])
+                    if max_val > prev_max_val:
+                        prev_max_val = max_val
+                        best_action = action
+                        duplicate_actions = [best_action]
+                    elif max_val == q_table[x][y][action]:
+                        duplicate_actions.append(action)
+
+                if len(duplicate_actions) > 1:
+                    for action in duplicate_actions:
+                        pos_after_action = calculate_new_pos(action, (x, y))
+                        draw_arrow(win, (255, 0, 0), ((165 + x * 40), (155 + y * 40)), pos_after_action)
+                else:
+                    pos_after_action = calculate_new_pos(best_action, (x,y))
+                    draw_arrow(win, (255, 0, 0), ((165 + x * 40), (155 + y * 40)), pos_after_action)
+
+
+def display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map):
+    for pos in pickup_positions:
+            win.blit(
+                state_map['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
+                state_map['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
+            )
+
+    for pos in dropoff_positions:
+        win.blit(
+            state_map['{},{}'.format(pos[0], pos[1])]["special_block"].get_symbol(),
+            state_map['{},{}'.format(pos[0], pos[1])]["special_block"].get_pos()
+        )
+
+
+def display_male_female_agents(win, male, female):
+    win.blit(male.get_symbol(), male.get_pos())
+    win.blit(female.get_symbol(), female.get_pos())
+
+
+def display_game_board(win, game_board):
+    win.blit(game_board, (125, 125))
+
+
+def generate_attractive_paths_image(win, male, female, state_map, game_board, 
+            pickup_positions, dropoff_positions, 
+            q_table_male_pickup, q_table_male_dropoff, 
+            q_table_female_pickup, q_table_female_dropoff, path="./test/"):
+
+        print("Male Q-Table Dropoff\n", q_table_male_dropoff, "\n")
+        print("Male Q-Table Pickup\n", q_table_male_pickup, "\n")
+
+        print("Female Q-Table Dropoff\n", q_table_female_dropoff, "\n")
+        print("Female Q-Table Pickup\n", q_table_female_pickup, "\n")
+        
+        display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
+        display_arrows(win, q_table_male_pickup)
+
+        pygame.image.save(win, "{}attractive_paths_pickup_male.jpeg".format(path))
+
+        display_game_board(win, game_board)
+        display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
+        display_male_female_agents(win, male, female)
+        display_arrows(win, q_table_male_dropoff)
+
+        pygame.image.save(win, "{}attractive_paths_dropoff_male.jpeg".format(path))
+
+        display_game_board(win, game_board)
+        display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
+        display_male_female_agents(win, male, female)
+        display_arrows(win, q_table_female_pickup)
+
+        pygame.image.save(win, "{}attractive_paths_pickup_female.jpeg".format(path))
+        
+
+        display_game_board(win, game_board)
+        display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
+        display_male_female_agents(win, male, female)
+        display_arrows(win, q_table_female_dropoff)
+
+        pygame.image.save(win, "{}attractive_paths_dropoff_female.jpeg".format(path))
+
+
+def save_qtables_in_text_file(q_table, filedir="test", filename="test.txt"):
+    try:
+        os.mkdir(filedir)
+    except:
+        print("Directory {} already exists, saving file there".format(filedir))
+    updated_filedir = "./{}/{}".format(filedir, filename)
+    with open(updated_filedir, "w") as f:
+        for x in range(0, len(q_table)):
+            for y in range(0, len(q_table)):
+                f.write("({}, {}) = {}\n".format(x, y, q_table[x][y]))
