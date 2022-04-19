@@ -184,8 +184,6 @@ while game_bool:
 
         helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, win)
 
-        # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever
-
         if male_turn_bool:
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
@@ -194,6 +192,7 @@ while game_bool:
             game_board_positions[current_pos_as_key]["occupied"] = False
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
+            # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             if male.get_block_count() == 0:
                 q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, 0.5, 0.5)
             else:
@@ -251,11 +250,11 @@ while game_bool:
             game_board_positions[current_pos_as_key]["occupied"] = False
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
+            # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             if female.get_block_count() == 1:
                 q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
             else:
                 q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, 0.5, 0.5)
-            # male_turn_bool = False <---- This is ideally what will handle the male and female taking turns moving
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
