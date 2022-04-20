@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 import random
+from datetime import datetime
 
 import os
 import pygame
@@ -163,6 +164,81 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy):
+    agent_pos = agent.get_coor()
+    actions = []
+    
+    print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
+    
+    # Checks to see what actions are possible for the current agent
+    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("east")
+    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("west")
+    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("south")
+    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+        actions.append("north")
+        
+    max_val = -99
+    prev_max_val = max_val
+    val_to_use = 0
+    best_action = ""
+    action_to_perform = ""
+
+    duplicate_actions = [best_action]
+
+    # Gets the agent with the max q value while collecting a list of actions 
+    # that have duplicate q values
+    
+    for action in actions:
+        max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
+        if max_val > prev_max_val:
+            prev_max_val = max_val
+            best_action = action
+            duplicate_actions = [best_action]
+        elif max_val == q_table[agent_pos[0]][agent_pos[1]][action]:
+            duplicate_actions.append(action)
+        
+    if len(duplicate_actions) > 1 and max_val == prev_max_val:
+        best_action = random.choice(duplicate_actions)
+
+    print("max action :" + best_action + "\n max val: " + str(max_val))
+    print("Action choices are", actions)
+    #if policy = .8 then 80% of the time algorithm would pick max_val
+    random.seed(datetime.now())
+    randomgen = random.uniform(0,1)
+    #print("PRANDOM active")
+    
+    print("policy is " + str(policy) + "\n probability is: " + str(randomgen))
+    if randomgen < policy:
+        actions.remove(best_action)
+        Next_val, action_to_perform = random_action(actions,q_table,agent_pos)
+    else:
+        Next_val = max_val
+        action_to_perform = best_action
+    
+    
+    print("Current action is", action_to_perform)
+    
+    #apply q learning equation
+    temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * Next_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
+    new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
+    
+    q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
+    
+    return q_table, state_map, action_to_perform
+
+    
+def random_action(actions, q_table, agent_pos):
+    num = len(actions)
+    
+    random.seed(datetime.now())
+    index = random.randrange(0,num)
+    
+    
+    
+    return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
 
 def generate_qtable():
     q_table = []
