@@ -16,6 +16,29 @@ font = pygame.font.Font(font_path, 35)
 font_details = pygame.font.Font(font_path, 12)
 
 
+# Stores the settings for each experiment. The first element in each experiment's array represents the first action it takes, 2nd element represents the 2nd.
+# The 3rd (in the case of experiment 3) represents the learning rate and discount factor
+experiment_settings = {
+    '1a' : [
+        [500, "PRandom"],
+        [7500, "PRandom"]
+    ],
+    '1b' : [
+        [500, "PRandom"],
+        [7500, "PGreedy"],
+    ],
+    '1c' : [
+        [500, "PRandom"],
+        [7500, "PExploit"]
+    ],
+    '3' : [
+        [500, "PRandom"],
+        [7500, "PExploit"],
+        [0.15, 0.45]
+    ],
+}
+
+
 def set_points_pickup(points_map, points_to_change_arr):
     for point in points_to_change_arr:
         points_map[point]["pickup"] = True
@@ -72,7 +95,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
         actions.append("south")
     if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"] == False:
         actions.append("north")
-        
+    
     max_val = -99
     prev_max_val = max_val
     val_to_use = 0
@@ -105,15 +128,18 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
             val_to_use = max_val
 
         elif mode == "PExploit":
-            other_actions = actions.remove(best_action)
-            random_action = random.choice(other_actions)
-            random_val = q_table[agent_pos[0]][agent_pos[1]][random_action]
+            if len(actions) > 1:
+                actions.remove(best_action)
+                random_action = random.choice(actions)
+                random_val = q_table[agent_pos[0]][agent_pos[1]][random_action]
 
-            exploit_choice = random.randint(1,100)
-            if exploit_choice <= 80:
-                action_to_perform, val_to_use = best_action, max_val
+                exploit_choice = random.randint(1,100)
+                if exploit_choice <= 80:
+                    action_to_perform, val_to_use = best_action, max_val
+                else:
+                    action_to_perform, val_to_use = random_action, random_val
             else:
-                action_to_perform, val_to_use = random_action, random_val
+                action_to_perform, val_to_use = best_action, max_val
 
     # If there's more than one action with the assigned max q value, we randomly
     # pick an action to use
