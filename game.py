@@ -102,7 +102,7 @@ policy_provided = False
 steps_provided = False
 
 current_policy = ""
-steps = 8000
+steps = 8000*2
 experiment_input = ""
 
 
@@ -111,8 +111,8 @@ random.seed(seed_value)
 
 
 while policy_provided is False:
-    experiment_input = input("Choose a experiment ('1a', '1b', '1c', '3'): ")
-    if experiment_input not in ["1a", "1b", "1c", "3"]:
+    experiment_input = input("Choose a experiment ('1a', '1b', '1c', '2', '3', '4'): ")
+    if experiment_input not in ["1a", "1b", "1c", "2", "3", "4"]:
         print("Not valid input")
         continue
     else:
@@ -189,10 +189,17 @@ while game_bool:
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
+            
             if male.get_block_count() == 0:
-                q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
+                if experiment_input == "2" or experiment_input == "4":
+                    q_table_male_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                else:
+                    q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
             else:
-                q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
+                if experiment_input == "2" or experiment_input == "4":
+                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                else:
+                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
@@ -250,13 +257,16 @@ while game_bool:
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
-            if female.get_block_count() == 1:
-                #q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
-                q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon)
-                
+            if female.get_block_count() == 0:
+                if experiment_input == "2" or experiment_input == "4":
+                    q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                else:
+                    q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
             else:
-                #q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
-                q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions,  learning_rate, discount_factor, policy_epsilon)
+                if experiment_input == "2" or experiment_input == "4":
+                    q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                else:
+                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
                 
                 
 
