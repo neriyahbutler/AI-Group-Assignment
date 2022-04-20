@@ -138,10 +138,9 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
-def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy,steps):
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy):
     agent_pos = agent.get_coor()
     actions = []
-    print("steps: " + str(steps))
     
     print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
     
@@ -165,16 +164,17 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
 
     # Gets the agent with the max q value while collecting a list of actions 
     # that have duplicate q values
+    
     for action in actions:
         max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
-        if max_val != prev_max_val:
+        if max_val > prev_max_val:
             prev_max_val = max_val
             best_action = action
             duplicate_actions = [best_action]
-        else:
+        elif max_val == q_table[agent_pos[0]][agent_pos[1]][action]:
             duplicate_actions.append(action)
         
-    if len(duplicate_actions) > 1:
+    if len(duplicate_actions) > 1 and max_val == prev_max_val:
         best_action = random.choice(duplicate_actions)
 
     print("max action :" + best_action + "\n max val: " + str(max_val))
@@ -198,6 +198,8 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     #apply q learning equation
     temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * Next_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
+    
+    q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
     
     return q_table, state_map, action_to_perform
 

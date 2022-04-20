@@ -102,6 +102,10 @@ steps_provided = False
 current_policy = ""
 steps = 0
 
+male_dropoff_counter = 0;
+
+game_count = 0
+
 while policy_provided is False and steps_provided is False:
     current_policy = input("Choose a Type (PRandom, PExploit, PGreedy): ")
     if not helper_functions.policy_verify(current_policy):
@@ -202,16 +206,14 @@ while game_bool:
                 # Checks to see if dropoff action is possible
                 if game_board_positions[current_pos_as_key]["special_block"].get_block_count() < game_board_positions[current_pos_as_key]["special_block"].get_capacity() \
                 and male.get_block_count() == 1:
+                    male_dropoff_counter += 1
                     # Increases the dropoff spot's block count and updates the graphic that displays it's block count 
                     # while decreasing the agent's block count
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
                     steps -= 1
-
-            
-            #male_turn_bool = False
-            print("Male moving!")
+                    male.increment_dropoff_count()
 
             # Sets the new position that the agent is one to be specified as occupied
             
@@ -224,7 +226,9 @@ while game_bool:
             else:
                 male.move_left()
             steps -= 1
-
+            
+            male.increment_step()
+            
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -240,9 +244,12 @@ while game_bool:
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             if female.get_block_count() == 1:
-                q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
+                #q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
+                q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, 0.5, 0.5,0.3)
+                
             else:
-                q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, 0.5, 0.5)
+                #q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, 0.5, 0.5)
+                q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, 0.5, 0.5,0.3)
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
@@ -270,6 +277,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.decrease_block_count()
                     steps -= 1
+                    female.increment_dropoff_count()
 
             if action_to_take == "north":
                 female.move_up()
@@ -292,6 +300,8 @@ while game_bool:
         
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):
+        male.add_steps_to_list()
+        female.add_steps_to_list()
         male, female, game_board_positions = helper_functions.reset_world(male, female, game_board_positions, pickup_positions, dropoff_positions, pickup_count, [male_start_position, female_start_position])
         for pos in pickup_positions:
             game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].update_symbol()
@@ -301,7 +311,9 @@ while game_bool:
     if steps <= 0:
         test_bool = False
         game_bool = False
-
+        
+        
+        
         helper_functions.save_qtables_in_text_file(q_table_male_pickup, "test", "q_table_male_pickup.txt")
         helper_functions.save_qtables_in_text_file(q_table_male_dropoff, "test", "q_table_male_dropoff.txt")
         helper_functions.save_qtables_in_text_file(q_table_female_pickup, "test", "q_table_female_pickup.txt")
@@ -312,6 +324,20 @@ while game_bool:
             pickup_positions, dropoff_positions,
             q_table_male_pickup, q_table_male_dropoff,
             q_table_female_pickup, q_table_female_dropoff)
+        
+        print("male dropoff total: " + str(male.get_dropoffs()))
+        print("male total steps: " + str(male.get_total_steps()))
+        male_steps_list = male.get_steps_list()
+        print("total terminal states: " + str(len(male_steps_list)))
+        print("male array: " + str(male_steps_list))
+        print("avg steps to reach terminal state : " + str(male.get_avg_steps_per_terminal_state()))
+        
+        print("Female dropoff total: " + str(female.get_dropoffs()))
+        print("Female total steps: " + str(female.get_total_steps()))
+        female_steps_list = female.get_steps_list()
+        print("total terminal states: " + str(len(female_steps_list)))
+        print("female array: " + str(female_steps_list))
+        print("avg steps to reach terminal state : " + str(female.get_avg_steps_per_terminal_state()))
 
     if male.get_coor() == female.get_coor():
         same_pos_cnt += 1
