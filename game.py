@@ -1,6 +1,9 @@
 import pygame
 import os
 import numpy as np
+import sys
+
+import random
 
 pygame.init()
 
@@ -25,7 +28,6 @@ width = 500
 height = 500
 
 win = pygame.display.set_mode((width, height))
-
 
 # Creates male and female agent
 male = Male()
@@ -100,27 +102,33 @@ policy_provided = False
 steps_provided = False
 
 current_policy = ""
-steps = 0
+steps = 8000
+experiment_input = ""
 
-male_dropoff_counter = 0;
 
-game_count = 0
+seed_value = random.randrange(sys.maxsize)
+random.seed(seed_value)
 
-while policy_provided is False and steps_provided is False:
-    current_policy = input("Choose a Type (PRandom, PExploit, PGreedy): ")
-    if not helper_functions.policy_verify(current_policy):
-        print("Not a Valid Policy, Please Try Again!")
+
+while policy_provided is False:
+    experiment_input = input("Choose a experiment ('1a', '1b', '1c', '3'): ")
+    if experiment_input not in ["1a", "1b", "1c", "3"]:
+        print("Not valid input")
         continue
     else:
         policy_provided = True
-    steps = int(input("Enter a Number of Steps: "))
-    if not helper_functions.step_verify(steps):
-        print("Not a Valid Number of Steps, Please Try Again")
-        continue
-    else:
-        steps_provided = True
 
-        
+# Loads the settings defined under the experiment_settings variable in the helper_functions.py file
+current_policy = helper_functions.experiment_settings[experiment_input][0][1]
+learning_rate = 0.5
+discount_factor = 0.5
+policy_epsilon = 0.4
+
+
+if experiment_input == "3":
+    learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
+    discount_factor = helper_functions.experiment_settings[experiment_input][2][1]
+
 while game_bool:
     # Fills out the background of the visualization window with black
     win.fill((0))
@@ -182,9 +190,9 @@ while game_bool:
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             if male.get_block_count() == 0:
-                q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, 0.5, 0.5)
+                q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
             else:
-                q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
+                q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
@@ -206,7 +214,6 @@ while game_bool:
                 # Checks to see if dropoff action is possible
                 if game_board_positions[current_pos_as_key]["special_block"].get_block_count() < game_board_positions[current_pos_as_key]["special_block"].get_capacity() \
                 and male.get_block_count() == 1:
-                    male_dropoff_counter += 1
                     # Increases the dropoff spot's block count and updates the graphic that displays it's block count 
                     # while decreasing the agent's block count
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
@@ -244,12 +251,14 @@ while game_bool:
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             if female.get_block_count() == 1:
-                #q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, 0.5, 0.5)
-                q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, 0.5, 0.5,0.3)
+                #q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
+                q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon)
                 
             else:
-                #q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, 0.5, 0.5)
-                q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, 0.5, 0.5,0.3)
+                #q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
+                q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions,  learning_rate, discount_factor, policy_epsilon)
+                
+                
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
@@ -311,19 +320,17 @@ while game_bool:
     if steps <= 0:
         test_bool = False
         game_bool = False
-        
-        
-        
-        helper_functions.save_qtables_in_text_file(q_table_male_pickup, "test", "q_table_male_pickup.txt")
-        helper_functions.save_qtables_in_text_file(q_table_male_dropoff, "test", "q_table_male_dropoff.txt")
-        helper_functions.save_qtables_in_text_file(q_table_female_pickup, "test", "q_table_female_pickup.txt")
-        helper_functions.save_qtables_in_text_file(q_table_female_dropoff, "test", "q_table_female_dropoff.txt")
+
+        helper_functions.save_qtables_in_text_file(q_table_male_pickup, "exp-{}".format(experiment_input), "q_table_male_pickup.txt")
+        helper_functions.save_qtables_in_text_file(q_table_male_dropoff, "exp-{}".format(experiment_input), "q_table_male_dropoff.txt")
+        helper_functions.save_qtables_in_text_file(q_table_female_pickup, "exp-{}".format(experiment_input), "q_table_female_pickup.txt")
+        helper_functions.save_qtables_in_text_file(q_table_female_dropoff, "exp-{}".format(experiment_input), "q_table_female_dropoff.txt")
 
         helper_functions.generate_attractive_paths_image(win, male, female,
             game_board_positions, game_board,
             pickup_positions, dropoff_positions,
             q_table_male_pickup, q_table_male_dropoff,
-            q_table_female_pickup, q_table_female_dropoff)
+            q_table_female_pickup, q_table_female_dropoff, './exp-{}/'.format(experiment_input))
         
         print("male dropoff total: " + str(male.get_dropoffs()))
         print("male total steps: " + str(male.get_total_steps()))
@@ -338,6 +345,13 @@ while game_bool:
         print("total terminal states: " + str(len(female_steps_list)))
         print("female array: " + str(female_steps_list))
         print("avg steps to reach terminal state : " + str(female.get_avg_steps_per_terminal_state()))
+            
+
+
+    if steps > 8000 - helper_functions.experiment_settings[experiment_input][0][0]:
+        current_policy = helper_functions.experiment_settings[experiment_input][0][1]
+    else:
+        current_policy = helper_functions.experiment_settings[experiment_input][1][1]
 
     if male.get_coor() == female.get_coor():
         same_pos_cnt += 1
