@@ -121,10 +121,11 @@ while policy_provided is False:
 # Loads the settings defined under the experiment_settings variable in the helper_functions.py file
 if experiment_input != "2" or experiment_input != "4":
     current_policy = helper_functions.experiment_settings[experiment_input][0][1]
-learning_rate = 0.5
+learning_rate = 0.3
 discount_factor = 0.5
 policy_epsilon = 0.2
-
+male_next_action = ""
+female_next_action = ""
 
 if experiment_input == "3":
     learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
@@ -193,7 +194,7 @@ while game_bool:
             
             if male.get_block_count() == 0:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_male_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps)
+                    q_table_male_pickup, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, male_next_action)
                 else:
                     q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
             else:
@@ -248,7 +249,9 @@ while game_bool:
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
             game_board_positions[current_pos_as_key]["occupied"] = True
+            male_next_action = next_action
             male_turn_bool = False
+            
         else:
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
@@ -261,7 +264,7 @@ while game_bool:
             
             if female.get_block_count() == 0:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon,8000-steps)
+                    q_table_female_pickup, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon,8000-steps, female_next_action)
                 else:
                     q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
             else:
@@ -317,7 +320,9 @@ while game_bool:
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
             game_board_positions[current_pos_as_key]["occupied"] = True
+            female_next_action = next_action
             male_turn_bool = True
+            
         
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):

@@ -177,28 +177,28 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     return q_table, state_map, action_to_perform
 
   
-def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps):
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps, action_to_perform):
     agent_pos = agent.get_coor()
     actions = []
     
-    print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
-    
     actions = check_available_moves(agent_pos,state_map)
     
-    print("Action choices are", actions)
     
     if steps <= 500: #PRandom
-        current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
-        print("Current action is", action_to_perform)
-        next_q_value, reward = Random_Q(action_to_perform, q_table, state_map, agent_pos,agent)
+        if action_to_perform == "":
+            current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
+        else:
+            current_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
+
+        next_q_value, reward, next_action = Random_Q(action_to_perform, q_table, state_map, agent_pos,agent)
         
     else: #PExploit
-        
-        # Gets the agent with the max q value while collecting a list of actions 
-        # that have duplicate q values
-        current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
-        print("Current action is", action_to_perform)
-        next_q_value, reward = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy,agent)
+        if action_to_perform == "":
+            current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
+        else:
+            current_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
+
+        next_q_value, reward, next_action = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy,agent)
     
     
     #apply sarsa
@@ -207,7 +207,7 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     
     q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
     
-    return q_table, state_map, action_to_perform
+    return q_table, state_map, action_to_perform, next_action
 
 def check_available_moves(agent_pos,state_map):
     actions = []
@@ -222,13 +222,15 @@ def check_available_moves(agent_pos,state_map):
         actions.append("north")
         
     return actions
-    
+
 def PRandom(actions, q_table, agent_pos):
     num = len(actions)
     
     random.seed(datetime.now())
     index = random.randrange(0,num)
     
+    
+
     return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
 
 def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
@@ -246,14 +248,14 @@ def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
     actions = ["north", "south", "east","west"]
     
     random.seed(datetime.now())
-    index = random.randrange(0,len(actions)-1)
+    index = random.randrange(0,len(actions))
     
     temp_reward = -1
     
     if state_map["{},{}".format(agent_x, agent_y)]["pickup"] == True or state_map["{},{}".format(agent_x, agent_y)]["dropoff"] == True:
         temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_x, agent_y)])
     
-    return q_table[agent_x][agent_y][actions[index]], temp_reward
+    return q_table[agent_x][agent_y][actions[index]], temp_reward, actions[index]
 
 def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon,agent):
     #Moves agent to action "a" and gets Q(a',s') value
@@ -289,7 +291,7 @@ def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon,agent):
         temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_x, agent_y)])
     
     
-    return q_table[agent_x][agent_y][action_to_perform], temp_reward
+    return next_q_value, temp_reward, action_to_perform
 
 
 def PExploit(actions, q_table, agent_pos, epsilon):
