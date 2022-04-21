@@ -123,7 +123,7 @@ if experiment_input != "2" or experiment_input != "4":
     current_policy = helper_functions.experiment_settings[experiment_input][0][1]
 learning_rate = 0.5
 discount_factor = 0.5
-policy_epsilon = 0.4
+policy_epsilon = 0.2
 
 
 if experiment_input == "3":
@@ -193,12 +193,12 @@ while game_bool:
             
             if male.get_block_count() == 0:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_male_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                    q_table_male_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps)
                 else:
                     q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
             else:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps)
                 else:
                     q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
 
@@ -260,12 +260,12 @@ while game_bool:
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             if female.get_block_count() == 0:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                    q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon,8000-steps)
                 else:
                     q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
             else:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon)
+                    q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps)
                 else:
                     q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
                 
