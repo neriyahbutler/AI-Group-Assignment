@@ -32,10 +32,18 @@ experiment_settings = {
         [500, "PRandom"],
         [7500, "PExploit"]
     ],
+    '2' : [
+        [500,"PRandom"],
+        [7500, "PExploit"]
+    ],
     '3' : [
         [500, "PRandom"],
         [7500, "PExploit"],
         [0.15, 0.45]
+    ],
+    '4' : [
+        [500,"PRandom"],
+        [7500, "PExploit"]
     ],
 }
 
@@ -170,33 +178,37 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     steps = agent.get_total_steps()
     print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
     
-    actions = check_available_moves(agent_pos)
+    actions = check_available_moves(agent_pos,state_map)
     
     print("Action choices are", actions)
     
     if steps <= 500: #PRandom
-        current_q_value, action_to_perform = random_action(actions,q_table,agent_pos)
-        next_q_value = Random_Q(action_to_perform, q_table, agent_pos)
+        current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
+        print("Current action is", action_to_perform)
+        next_q_value = Random_Q(action_to_perform, q_table, state_map, agent_pos)
         
     else: #PExploit
         
         # Gets the agent with the max q value while collecting a list of actions 
         # that have duplicate q values
         current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
-        next_q_value = Exploit_Q(action_to_perform, q_table, agent_pos, policy)
+        print("Current action is", action_to_perform)
+        next_q_value = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy)
     
+    temp_reward = -1
     
-    print("Current action is", action_to_perform)
+    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
     
     #apply sarsa
-    temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * next_q_value - current_q_value
+    temporal_difference = temp_reward + discount_factor * next_q_value - current_q_value
     new_q_value = current_q_value + learning_rate * temporal_difference
     
     q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
     
     return q_table, state_map, action_to_perform
 
-def check_available_moves(agent_pos):
+def check_available_moves(agent_pos,state_map):
     actions = []
     # Checks to see what actions are possible for the current agent
     if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
@@ -210,7 +222,7 @@ def check_available_moves(agent_pos):
         
     return actions
     
-def Prandom(actions, q_table, agent_pos):
+def PRandom(actions, q_table, agent_pos):
     num = len(actions)
     
     random.seed(datetime.now())
@@ -218,58 +230,58 @@ def Prandom(actions, q_table, agent_pos):
     
     return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
 
-def Random_Q(action_to_perform, q_table, agent_pos):
-    agent_row = agent_pos[0]
-    agent_column = agent_pos[1]
+def Random_Q(action_to_perform, q_table, state_map, agent_pos):
+    agent_x = agent_pos[0]
+    agent_y = agent_pos[1]
     if action_to_perform == "north":
-        agent_row += 1
+        agent_y -= 1
     elif action_to_perform == "south":
-        agent_row -= 1
+        agent_y += 1
     elif action_to_perform == "east":
-        agent_column += 1
+        agent_x += 1
     elif action_to_perform == "west":
-        agent_column -= 1
+        agent_x -= 1
     
-    agent = [agent_row,agent_column]
-    actions = check_available_moves(agent)
+    actions = ["north", "south", "east","west"]
     
     random.seed(datetime.now())
-    index = random.range(0,len(actions))
+    index = random.randrange(0,len(actions)-1)
     
+    print(agent_x)
+    print(agent_y)
     
-    return q_table[agent_row][agent_column][actions[index]]
+    return q_table[agent_x][agent_y][actions[index]]
 
-def Exploit_Q(action_to_perform, q_table, agent_pos, epsilon):
-    agent_row = agent_pos[0]
-    agent_column = agent_pos[1]
+def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon):
     #Moves agent to action "a" and gets Q(a',s') value
+    agent_x = agent_pos[0]
+    agent_y = agent_pos[1]
     if action_to_perform == "north":
-        agent_row += 1
+        agent_y -= 1
     elif action_to_perform == "south":
-        agent_row -= 1
+        agent_y += 1
     elif action_to_perform == "east":
-        agent_column += 1
+        agent_x += 1
     elif action_to_perform == "west":
-        agent_column -= 1
+        agent_x -= 1
     
-    agent = [agent_row,agent_column]
-    actions = check_available_moves(agent)
+    actions = ["north", "south", "east","west"]
     
     random.seed(datetime.now())
     
     probability = random.uniform(0,1)
     
-    max_action, max_value = choose_max_action(actions)
+    max_action, max_q_value = choose_max_action(actions, q_table, agent_pos)
     
     if probability <= epsilon :
         actions.remove(max_action)
-        next_q_value, action_to_perform = Prandom(actions, q_table, agent_pos) 
+        next_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
     else:
         next_q_value = max_q_value
         action_to_perform = max_action
     
     
-    return q_table[agent_row][agent_column][action_to_perform]
+    return q_table[agent_x][agent_y][action_to_perform]
 
 
 def PExploit(actions, q_table, agent_pos, epsilon):
@@ -279,18 +291,18 @@ def PExploit(actions, q_table, agent_pos, epsilon):
     
     probability = random.uniform(0,1)
     
-    max_action, max_q_value = choose_max_action(actions)
+    max_action, max_q_value = choose_max_action(actions, q_table, agent_pos)
     
     if probability <= epsilon :
         actions.remove(max_action)
-        current_q_value, action_to_perform = Prandom(actions, q_table, agent_pos) 
+        current_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
     else:
         current_q_value = max_q_value
         action_to_perform = max_action
         
     return current_q_value, action_to_perform
     
-def choose_max_action(actions):
+def choose_max_action(actions,q_table,agent_pos):
     max_val = -99
     prev_max_val = max_val
     val_to_use = 0

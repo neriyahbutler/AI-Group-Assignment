@@ -102,7 +102,7 @@ policy_provided = False
 steps_provided = False
 
 current_policy = ""
-steps = 8000*2
+steps = 8000
 experiment_input = ""
 
 
@@ -119,7 +119,8 @@ while policy_provided is False:
         policy_provided = True
 
 # Loads the settings defined under the experiment_settings variable in the helper_functions.py file
-current_policy = helper_functions.experiment_settings[experiment_input][0][1]
+if experiment_input != "2" or experiment_input != "4":
+    current_policy = helper_functions.experiment_settings[experiment_input][0][1]
 learning_rate = 0.5
 discount_factor = 0.5
 policy_epsilon = 0.4
