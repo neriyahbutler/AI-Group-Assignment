@@ -185,7 +185,7 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     if steps <= 500: #PRandom
         current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
         print("Current action is", action_to_perform)
-        next_q_value = Random_Q(action_to_perform, q_table, state_map, agent_pos)
+        next_q_value, reward = Random_Q(action_to_perform, q_table, state_map, agent_pos)
         
     else: #PExploit
         
@@ -193,12 +193,8 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
         # that have duplicate q values
         current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
         print("Current action is", action_to_perform)
-        next_q_value = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy)
+        next_q_value, reward = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy)
     
-    temp_reward = -1
-    
-    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
-        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
     
     #apply sarsa
     temporal_difference = temp_reward + discount_factor * next_q_value - current_q_value
@@ -250,7 +246,12 @@ def Random_Q(action_to_perform, q_table, state_map, agent_pos):
     print(agent_x)
     print(agent_y)
     
-    return q_table[agent_x][agent_y][actions[index]]
+    temp_reward = -1
+    
+    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+    
+    return q_table[agent_x][agent_y][actions[index]], temp_reward
 
 def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon):
     #Moves agent to action "a" and gets Q(a',s') value
@@ -280,8 +281,13 @@ def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon):
         next_q_value = max_q_value
         action_to_perform = max_action
     
+    temp_reward = -1
     
-    return q_table[agent_x][agent_y][action_to_perform]
+    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+    
+    
+    return q_table[agent_x][agent_y][action_to_perform], temp_reward = -1
 
 
 def PExploit(actions, q_table, agent_pos, epsilon):
