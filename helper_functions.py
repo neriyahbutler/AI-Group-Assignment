@@ -172,10 +172,10 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
-def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy):
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps):
     agent_pos = agent.get_coor()
     actions = []
-    steps = agent.get_total_steps()
+    
     print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
     
     actions = check_available_moves(agent_pos,state_map)
@@ -185,7 +185,7 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     if steps <= 500: #PRandom
         current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
         print("Current action is", action_to_perform)
-        next_q_value, reward = Random_Q(action_to_perform, q_table, state_map, agent_pos)
+        next_q_value, reward = Random_Q(action_to_perform, q_table, state_map, agent_pos,agent)
         
     else: #PExploit
         
@@ -193,11 +193,11 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
         # that have duplicate q values
         current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
         print("Current action is", action_to_perform)
-        next_q_value, reward = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy)
+        next_q_value, reward = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy,agent)
     
     
     #apply sarsa
-    temporal_difference = temp_reward + discount_factor * next_q_value - current_q_value
+    temporal_difference = reward + discount_factor * next_q_value - current_q_value
     new_q_value = current_q_value + learning_rate * temporal_difference
     
     q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
@@ -226,7 +226,7 @@ def PRandom(actions, q_table, agent_pos):
     
     return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
 
-def Random_Q(action_to_perform, q_table, state_map, agent_pos):
+def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
     agent_x = agent_pos[0]
     agent_y = agent_pos[1]
     if action_to_perform == "north":
@@ -243,17 +243,14 @@ def Random_Q(action_to_perform, q_table, state_map, agent_pos):
     random.seed(datetime.now())
     index = random.randrange(0,len(actions)-1)
     
-    print(agent_x)
-    print(agent_y)
-    
     temp_reward = -1
     
-    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
-        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+    if state_map["{},{}".format(agent_x, agent_y)]["pickup"] == True or state_map["{},{}".format(agent_x, agent_y)]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_x, agent_y)])
     
     return q_table[agent_x][agent_y][actions[index]], temp_reward
 
-def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon):
+def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon,agent):
     #Moves agent to action "a" and gets Q(a',s') value
     agent_x = agent_pos[0]
     agent_y = agent_pos[1]
@@ -283,11 +280,11 @@ def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon):
     
     temp_reward = -1
     
-    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
-        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+    if state_map["{},{}".format(agent_x, agent_y)]["pickup"] == True or state_map["{},{}".format(agent_x, agent_y)]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_x, agent_y)])
     
     
-    return q_table[agent_x][agent_y][action_to_perform], temp_reward = -1
+    return q_table[agent_x][agent_y][action_to_perform], temp_reward
 
 
 def PExploit(actions, q_table, agent_pos, epsilon):
