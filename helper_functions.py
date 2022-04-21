@@ -32,10 +32,18 @@ experiment_settings = {
         [500, "PRandom"],
         [7500, "PExploit"]
     ],
+    '2' : [
+        [500,"PRandom"],
+        [7500, "PExploit"]
+    ],
     '3' : [
         [500, "PRandom"],
         [7500, "PExploit"],
         [0.15, 0.45]
+    ],
+    '4' : [
+        [500,"PRandom"],
+        [7500, "PExploit"]
     ],
 }
 
@@ -167,9 +175,37 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
 def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy):
     agent_pos = agent.get_coor()
     actions = []
-    
+    steps = agent.get_total_steps()
     print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
     
+    actions = check_available_moves(agent_pos,state_map)
+    
+    print("Action choices are", actions)
+    
+    if steps <= 500: #PRandom
+        current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
+        print("Current action is", action_to_perform)
+        next_q_value, reward = Random_Q(action_to_perform, q_table, state_map, agent_pos)
+        
+    else: #PExploit
+        
+        # Gets the agent with the max q value while collecting a list of actions 
+        # that have duplicate q values
+        current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
+        print("Current action is", action_to_perform)
+        next_q_value, reward = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy)
+    
+    
+    #apply sarsa
+    temporal_difference = temp_reward + discount_factor * next_q_value - current_q_value
+    new_q_value = current_q_value + learning_rate * temporal_difference
+    
+    q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
+    
+    return q_table, state_map, action_to_perform
+
+def check_available_moves(agent_pos,state_map):
+    actions = []
     # Checks to see what actions are possible for the current agent
     if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("east")
@@ -180,17 +216,106 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
         actions.append("north")
         
+    return actions
+    
+def PRandom(actions, q_table, agent_pos):
+    num = len(actions)
+    
+    random.seed(datetime.now())
+    index = random.randrange(0,num)
+    
+    return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
+
+def Random_Q(action_to_perform, q_table, state_map, agent_pos):
+    agent_x = agent_pos[0]
+    agent_y = agent_pos[1]
+    if action_to_perform == "north":
+        agent_y -= 1
+    elif action_to_perform == "south":
+        agent_y += 1
+    elif action_to_perform == "east":
+        agent_x += 1
+    elif action_to_perform == "west":
+        agent_x -= 1
+    
+    actions = ["north", "south", "east","west"]
+    
+    random.seed(datetime.now())
+    index = random.randrange(0,len(actions)-1)
+    
+    print(agent_x)
+    print(agent_y)
+    
+    temp_reward = -1
+    
+    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+    
+    return q_table[agent_x][agent_y][actions[index]], temp_reward
+
+def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon):
+    #Moves agent to action "a" and gets Q(a',s') value
+    agent_x = agent_pos[0]
+    agent_y = agent_pos[1]
+    if action_to_perform == "north":
+        agent_y -= 1
+    elif action_to_perform == "south":
+        agent_y += 1
+    elif action_to_perform == "east":
+        agent_x += 1
+    elif action_to_perform == "west":
+        agent_x -= 1
+    
+    actions = ["north", "south", "east","west"]
+    
+    random.seed(datetime.now())
+    
+    probability = random.uniform(0,1)
+    
+    max_action, max_q_value = choose_max_action(actions, q_table, agent_pos)
+    
+    if probability <= epsilon :
+        actions.remove(max_action)
+        next_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
+    else:
+        next_q_value = max_q_value
+        action_to_perform = max_action
+    
+    temp_reward = -1
+    
+    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
+    
+    
+    return q_table[agent_x][agent_y][action_to_perform], temp_reward = -1
+
+
+def PExploit(actions, q_table, agent_pos, epsilon):
+    num = len(actions)
+    
+    random.seed(datetime.now())
+    
+    probability = random.uniform(0,1)
+    
+    max_action, max_q_value = choose_max_action(actions, q_table, agent_pos)
+    
+    if probability <= epsilon :
+        actions.remove(max_action)
+        current_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
+    else:
+        current_q_value = max_q_value
+        action_to_perform = max_action
+        
+    return current_q_value, action_to_perform
+    
+def choose_max_action(actions,q_table,agent_pos):
     max_val = -99
     prev_max_val = max_val
     val_to_use = 0
     best_action = ""
     action_to_perform = ""
-
     duplicate_actions = [best_action]
-
-    # Gets the agent with the max q value while collecting a list of actions 
-    # that have duplicate q values
-    
+        
     for action in actions:
         max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
         if max_val > prev_max_val:
@@ -202,43 +327,10 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
         
     if len(duplicate_actions) > 1 and max_val == prev_max_val:
         best_action = random.choice(duplicate_actions)
+    
+    
+    return best_action, max_val
 
-    print("max action :" + best_action + "\n max val: " + str(max_val))
-    print("Action choices are", actions)
-    #if policy = .8 then 80% of the time algorithm would pick max_val
-    random.seed(datetime.now())
-    randomgen = random.uniform(0,1)
-    #print("PRANDOM active")
-    
-    print("policy is " + str(policy) + "\n probability is: " + str(randomgen))
-    if randomgen < policy:
-        actions.remove(best_action)
-        Next_val, action_to_perform = random_action(actions,q_table,agent_pos)
-    else:
-        Next_val = max_val
-        action_to_perform = best_action
-    
-    
-    print("Current action is", action_to_perform)
-    
-    #apply q learning equation
-    temporal_difference = state_map["{},{}".format(agent_pos[0], agent_pos[1])]["reward"] + discount_factor * Next_val - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
-    new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
-    
-    q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
-    
-    return q_table, state_map, action_to_perform
-
-    
-def random_action(actions, q_table, agent_pos):
-    num = len(actions)
-    
-    random.seed(datetime.now())
-    index = random.randrange(0,num)
-    
-    
-    
-    return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
 
 def generate_qtable():
     q_table = []
