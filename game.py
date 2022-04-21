@@ -258,6 +258,7 @@ while game_bool:
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
+            
             if female.get_block_count() == 0:
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_female_pickup, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon,8000-steps)

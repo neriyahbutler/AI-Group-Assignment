@@ -91,11 +91,8 @@ def return_position_reward(agent, pos_in_state_map):
     return -1
 
 
-def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
-    agent_pos = agent.get_coor()
+def check_possible_actions(agent_pos, state_map):
     actions = []
-    
-    # Checks to see what actions are possible for the current agent
     if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"] == False:
         actions.append("east")
     if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0] - 1, agent_pos[1])]["occupied"] == False:
@@ -104,12 +101,13 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
         actions.append("south")
     if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"] == False:
         actions.append("north")
-    
+    return actions
+
+
+def get_best_action(agent_pos, actions, q_table):
     max_val = -99
     prev_max_val = max_val
-    val_to_use = 0
     best_action = ""
-    action_to_perform = ""
 
     duplicate_actions = [best_action]
 
@@ -127,33 +125,34 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     if len(duplicate_actions) > 1 and max_val == prev_max_val:
         best_action = random.choice(duplicate_actions)
 
+    return best_action
+
+
+def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
+    agent_pos = agent.get_coor()
+    actions = check_possible_actions(agent_pos, state_map)
+    action_to_perform = ""
+
+    best_action = get_best_action(agent_pos, actions, q_table)
 
     if mode == "PRandom":
         action_to_perform = random.choice(actions)
-        val_to_use = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     else:
         if mode == "PGreedy":
             action_to_perform = best_action
-            val_to_use = max_val
 
         elif mode == "PExploit":
             if len(actions) > 1:
                 actions.remove(best_action)
                 random_action = random.choice(actions)
-                random_val = q_table[agent_pos[0]][agent_pos[1]][random_action]
 
                 exploit_choice = random.randint(1,100)
                 if exploit_choice <= 80:
-                    action_to_perform, val_to_use = best_action, max_val
+                    action_to_perform = best_action
                 else:
-                    action_to_perform, val_to_use = random_action, random_val
+                    action_to_perform = random_action
             else:
-                action_to_perform, val_to_use = best_action, max_val
-
-    # If there's more than one action with the assigned max q value, we randomly
-    # pick an action to use
-    if len(duplicate_actions) > 1:
-        action_to_perform = random.choice(duplicate_actions)
+                action_to_perform = best_action
 
     # Applys the q learning equation
     temp_reward = -1
@@ -161,10 +160,15 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # Checks to see if current position is a pickup spot or dropoff spot
     # If so, it checks to see if it should give a reward of 13 if it's able to
     # dropoff/pickup a block
-    if state_map["{},{}".format(agent_pos[0], agent_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_pos[0], agent_pos[1])]["dropoff"] == True:
-        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_pos[0], agent_pos[1])])
-        
-    temporal_difference = temp_reward + discount_factor * val_to_use - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
+    
+    new_agent_pos = calculate_new_coor(action_to_perform, agent_pos)
+    actions_for_new_state = check_possible_actions(new_agent_pos, state_map)
+    second_action_to_perform = get_best_action(new_agent_pos, actions_for_new_state, q_table)
+
+    if state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])]["pickup"] == True or state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])])
+
+    temporal_difference = temp_reward + discount_factor * q_table[new_agent_pos[0]][new_agent_pos[1]][second_action_to_perform] - q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     new_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform] + learning_rate * temporal_difference
 
     q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
@@ -172,6 +176,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
+  
 def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps):
     agent_pos = agent.get_coor()
     actions = []
@@ -417,6 +422,19 @@ def calculate_new_pos(action, pos):
     if action == "east":
         return ((165 + (x + 0.25) * 40), (155 + y * 40))
     return ((165+ (x - 0.25) * 40), (155 + y * 40))
+
+
+def calculate_new_coor(action, coor):
+    x = coor[0]
+    y = coor[1]
+
+    if action == "north":
+        return (x, y - 1)
+    if action == "south":
+        return (x, y + 1)
+    if action == "east":
+        return (x + 1, y)
+    return (x - 1, y)
 
 
 def display_arrows(win, q_table):
