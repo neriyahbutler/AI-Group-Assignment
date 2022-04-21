@@ -183,6 +183,8 @@ while game_bool:
         helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, win)
 
         if male_turn_bool:
+            print("\n")
+            print("male turn!")
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -199,7 +201,7 @@ while game_bool:
                     q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
             else:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps)
+                    q_table_male_dropoff, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, male_next_action)
                 else:
                     q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
 
@@ -247,12 +249,17 @@ while game_bool:
             
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-
+            
+            if male.get_coor() == female.get_coor():
+                pygame.time.wait(1000)
+                print("stacked")
             game_board_positions[current_pos_as_key]["occupied"] = True
             male_next_action = next_action
             male_turn_bool = False
             
         else:
+            print("\n")
+            print("female turn!")
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -269,7 +276,7 @@ while game_bool:
                     q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
             else:
                 if experiment_input == "2" or experiment_input == "4":
-                    q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps)
+                    q_table_female_dropoff, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, female_next_action)
                 else:
                     q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
                 
@@ -318,14 +325,19 @@ while game_bool:
             
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-
+            print("occupied: ",current_pos[0], current_pos[1])
             game_board_positions[current_pos_as_key]["occupied"] = True
             female_next_action = next_action
             male_turn_bool = True
+
+            if (8000-steps) == 500:
+                pygame.time.wait(1000)
             
         
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):
+        male_next_action = ""
+        female_next_action = ""
         male.add_steps_to_list()
         female.add_steps_to_list()
         male, female, game_board_positions = helper_functions.reset_world(male, female, game_board_positions, pickup_positions, dropoff_positions, pickup_count, [male_start_position, female_start_position])
