@@ -121,11 +121,13 @@ while policy_provided is False:
 # Loads the settings defined under the experiment_settings variable in the helper_functions.py file
 if experiment_input != "2" or experiment_input != "4":
     current_policy = helper_functions.experiment_settings[experiment_input][0][1]
+
 learning_rate = 0.3
 discount_factor = 0.5
 policy_epsilon = 0.2
 male_next_action = ""
 female_next_action = ""
+next_action = ""
 
 if experiment_input == "3":
     learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
