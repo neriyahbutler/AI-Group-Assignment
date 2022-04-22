@@ -105,6 +105,9 @@ current_policy = ""
 steps = 8000
 experiment_input = ""
 
+#Experiment 4 defined variables necessary for execution
+doing_experiment_4 = False
+new_pickup_positions = [[0,1], [3,4]]
 
 seed_value = random.randrange(sys.maxsize)
 random.seed(seed_value)
@@ -132,6 +135,9 @@ next_action = ""
 if experiment_input == "3":
     learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
     discount_factor = helper_functions.experiment_settings[experiment_input][2][1]
+
+if experiment_input == "4":
+    doing_experiment_4 = True
 
 while game_bool:
     # Fills out the background of the visualization window with black
@@ -182,7 +188,7 @@ while game_bool:
         helper_functions.display_game_board(win, game_board)
         helper_functions.display_male_female_agents(win, male, female)
         helper_functions.display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, game_board_positions)
-        helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, win)
+        helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, len(male.get_steps_list()) + 1, win)     
 
         if male_turn_bool:
             print("\n")
@@ -347,7 +353,22 @@ while game_bool:
             game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].update_symbol()
         for pos in dropoff_positions:
             game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].update_symbol()
-            
+
+        #Experiment 4 game conditions
+    if(doing_experiment_4 and len(male.get_steps_list()) == 3):
+        pickup_positions = new_pickup_positions #change the pickup positions if 3 games have been played
+        for pos in pickup_positions:
+            temp_pickup_block = PickupBlock(count=2, color=(50, 205, 50)) # Green
+            temp_pickup_block.set_block_count(pickup_count)
+            temp_pickup_block.update_symbol()
+            temp_pickup_block.set_pos(pos)
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"] = temp_pickup_block
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["pickup"] = True
+            game_board_positions['{},{}'.format(pos[0], pos[1])]["reward"] = 13
+
+    if(doing_experiment_4 and len(male.get_steps_list()) == 6):
+        steps = 0 #end the game if 6 games have been run
+    
     if steps <= 0:
         test_bool = False
         game_bool = False

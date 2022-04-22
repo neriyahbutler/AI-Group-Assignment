@@ -411,9 +411,11 @@ def reset_world(male, female, state_map, pickup_positions, dropoff_positions, pi
     return male, female, state_map
 
 
-def display_game_details(male, female, dropoff_capacity, pickup_capacity, window):
+def display_game_details(male, female, dropoff_capacity, pickup_capacity, games_count, window):
     male_count = font_details.render("Male block count = {}".format(male.get_block_count()), 1, (255, 255, 255))
     female_count = font_details.render("Female block count = {}".format(female.get_block_count()), 1, (255, 255, 255))
+
+    games_count_details = font_details.render("Game: {}".format(games_count), 1, (255, 255, 255))
 
     dropoff_capacity_details = font_details.render("Dropoff capacity = {}".format(dropoff_capacity), 1, (255, 255, 255))
     pickup_capacity_details = font_details.render("Pickup max count = {}".format(pickup_capacity), 1, (255, 255, 255))
@@ -425,6 +427,7 @@ def display_game_details(male, female, dropoff_capacity, pickup_capacity, window
 
     window.blit(male_count, (20,420))
     window.blit(female_count, (20, 440))
+    window.blit(games_count_details, (20, 460))
 
     window.blit(dropoff_capacity_details, (280, 420))
     window.blit(pickup_capacity_details, (280, 440))
