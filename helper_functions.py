@@ -9,6 +9,8 @@ import pygame
 
 import math
 
+import sys
+
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 font_path = os.path.join(base_path, "./font/Joystix.ttf")
@@ -111,6 +113,9 @@ def get_best_action(agent_pos, actions, q_table):
 
     duplicate_actions = [best_action]
 
+    seed_value = random.randrange(sys.maxsize)
+    random.seed(seed_value)
+
     # Gets the agent with the max q value while collecting a list of actions 
     # that have duplicate q values
     for action in actions:
@@ -134,6 +139,9 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     action_to_perform = ""
 
     best_action = get_best_action(agent_pos, actions, q_table)
+
+    seed_value = random.randrange(sys.maxsize)
+    random.seed(seed_value)
 
     if mode == "PRandom":
         action_to_perform = random.choice(actions)
@@ -327,6 +335,33 @@ def PExploit(actions, q_table, agent_pos, epsilon):
         current_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
         
     return current_q_value, action_to_perform
+
+    
+def choose_max_action(actions,q_table,agent_pos):
+    max_val = -99
+    prev_max_val = max_val
+    val_to_use = 0
+    best_action = ""
+    action_to_perform = ""
+    duplicate_actions = [best_action]
+        
+    seed_value = random.randrange(sys.maxsize)
+    random.seed(seed_value)
+
+    for action in actions:
+        max_val = max(max_val, q_table[agent_pos[0]][agent_pos[1]][action])
+        if max_val > prev_max_val:
+            prev_max_val = max_val
+            best_action = action
+            duplicate_actions = [best_action]
+        elif max_val == q_table[agent_pos[0]][agent_pos[1]][action]:
+            duplicate_actions.append(action)
+        
+    if len(duplicate_actions) > 1 and max_val == prev_max_val:
+        best_action = random.choice(duplicate_actions)
+    
+    
+    return best_action, max_val
 
 
 def generate_qtable():

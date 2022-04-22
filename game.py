@@ -47,17 +47,17 @@ q_table_female_dropoff = helper_functions.generate_qtable()
 #  the rewards/dropff and pickup status that match the position
 
 pickup_positions = [[4,2], [1,3]]
-dropoff_positions = [[4,0], [2,2]]
+dropoff_positions = [[4,0], [2,2], [0,0], [4,4]]
 
-male_start_position = [0,0]
-female_start_position = [0,1]
+male_start_position = [4,2]
+female_start_position = [0,2]
 
 male.set_coor(male_start_position)
 female.set_coor(female_start_position)
 
 # Changes the amount of blocks at that pickup spot and capacity of the dropoff spot
-pickup_count = 2
-dropoff_count_max = 2
+pickup_count = 10
+dropoff_count_max = 5
 
 # Goes through every position in the matrix and sets up its respected position in the map
 game_board_positions = {}
@@ -333,7 +333,7 @@ while game_bool:
             if (8000-steps) == 500:
                 pygame.time.wait(1000)
             
-        
+ 
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):
         male_next_action = ""
@@ -361,6 +361,7 @@ while game_bool:
             q_table_male_pickup, q_table_male_dropoff,
             q_table_female_pickup, q_table_female_dropoff, './exp-{}/'.format(experiment_input))
         
+        
         print("male dropoff total: " + str(male.get_dropoffs()))
         print("male total steps: " + str(male.get_total_steps()))
         male_steps_list = male.get_steps_list()
@@ -375,8 +376,6 @@ while game_bool:
         print("female array: " + str(female_steps_list))
         print("avg steps to reach terminal state : " + str(female.get_avg_steps_per_terminal_state()))
             
-
-
     if steps > 8000 - helper_functions.experiment_settings[experiment_input][0][0]:
         current_policy = helper_functions.experiment_settings[experiment_input][0][1]
     else:

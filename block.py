@@ -4,7 +4,7 @@ import pygame
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 font_path = os.path.join(base_path, "./font/Joystix.ttf")
-font = pygame.font.Font(font_path, 35)
+font = pygame.font.Font(font_path, 20)
 
 class Block(object):
     x_move = 0
