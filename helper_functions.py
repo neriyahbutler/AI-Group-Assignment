@@ -379,6 +379,13 @@ def generate_qtable():
 
     return q_table
 
+def generate_heatMap():
+    heatmap = np.zeros((5, 5), dtype=int)
+    return heatmap
+
+def update_heatmap(pos, heatmap):
+    heatmap[pos[0]][pos[1]] += 1
+    return heatmap
 
 def check_dropoff_capacity(state_map, dropoff_pos):
     for pos in dropoff_pos:
@@ -578,3 +585,34 @@ def save_qtables_in_text_file(q_table, filedir="test", filename="test.txt"):
         for x in range(0, len(q_table)):
             for y in range(0, len(q_table)):
                 f.write("({}, {}) = {}\n".format(x, y, q_table[x][y]))
+
+def save_heatmaps_in_text_file(male_dropoff, male_pickup, female_dropoff, female_pickup, filedir="test"):
+    heatmaps = [male_dropoff, male_pickup, female_dropoff, female_pickup]
+    heatmap_names = ["---Male Dropoff HeatMap---", "---Male Pickup HeatMap---", "---Female Dropoff HeatMap---", "---Female Pickup HeatMap---"]
+    filename = "heatmaps.txt"
+    try:
+        os.mkdir(filedir)
+    except:
+        print("Directory {} already exists, saving file there".format(filedir))
+    updated_filedir = "./{}/{}".format(filedir, filename)
+    with open(updated_filedir, "w") as f:
+        for i in range(len(heatmaps)):
+            f.write("{}\n".format(heatmap_names[i]))
+            f.write("{}\n\n".format(heatmaps[i]))
+            total_steps, heatmap_dist = find_heatmap_distribution(heatmaps[i])
+            f.write("Total Steps: {}\n".format(total_steps))
+            f.write("Distribution:\n")
+            f.write("{}\n\n\n".format(heatmap_dist))
+
+def find_heatmap_distribution(heatmap):
+    total = 0
+    for x in range(heatmap.shape[0]):
+        for y in range(heatmap.shape[1]):
+            total += heatmap[x][y]
+
+    distribution_map = np.zeros((heatmap.shape[0], heatmap.shape[1]), dtype=float)
+    for x in range(heatmap.shape[0]):
+        for y in range(heatmap.shape[1]):
+            distribution_map[x][y] = (heatmap[x][y] / total)
+
+    return total, distribution_map
