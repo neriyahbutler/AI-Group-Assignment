@@ -185,138 +185,157 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     return q_table, state_map, action_to_perform
 
   
-def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps):
+def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps, action_to_perform):
     agent_pos = agent.get_coor()
     actions = []
-    
-    print("\nCurrent pos is {}, {}".format(agent_pos[0], agent_pos[1]))
-    
+    agent_start = agent_pos[:]
     actions = check_available_moves(agent_pos,state_map)
-    
-    print("Action choices are", actions)
+    print("Agent at coordinate --> x: " + str(agent_pos[0]) + " y: " + str(agent_pos[1]))
     
     if steps <= 500: #PRandom
-        current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
-        print("Current action is", action_to_perform)
-        next_q_value, reward = Random_Q(action_to_perform, q_table, state_map, agent_pos,agent)
+        if action_to_perform in actions:
+            current_q_value = q_table[agent_start[0]][agent_start[1]][action_to_perform]
+        else:
+            current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
         
+        print("Current action to perform: " + action_to_perform + "\n ------> next action set")
+        next_q_value, reward, next_action, state_map = Random_Q(action_to_perform, q_table, state_map, agent_pos,agent)
+        print("Next action taken: " + next_action)
     else: #PExploit
+        if action_to_perform in actions:
+            current_q_value = q_table[agent_start[0]][agent_start[1]][action_to_perform]
+        else:
+            current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
         
-        # Gets the agent with the max q value while collecting a list of actions 
-        # that have duplicate q values
-        current_q_value, action_to_perform = PExploit(actions,q_table,agent_pos, policy)
-        print("Current action is", action_to_perform)
-        next_q_value, reward = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy,agent)
-    
+        next_q_value, reward, next_action, state_map = Exploit_Q(action_to_perform, q_table, state_map, agent_pos, policy,agent)
     
     #apply sarsa
     temporal_difference = reward + discount_factor * next_q_value - current_q_value
     new_q_value = current_q_value + learning_rate * temporal_difference
-    
-    q_table[agent_pos[0]][agent_pos[1]][action_to_perform] = new_q_value
-    
-    return q_table, state_map, action_to_perform
+    q_table[agent_start[0]][agent_start[1]][action_to_perform] = new_q_value
+
+    return q_table, state_map, action_to_perform, next_action
 
 def check_available_moves(agent_pos,state_map):
     actions = []
+    move_up = agent_pos[1]-1
+    move_down = agent_pos[1]+1
+    move_left = agent_pos[0]-1
+    move_right = agent_pos[0]+1
     # Checks to see what actions are possible for the current agent
-    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if move_right <= 4 and state_map["{},{}".format(move_right, agent_pos[1])]["occupied"] == False:
         actions.append("east")
-    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if move_left >= 0 and state_map["{},{}".format(move_left, agent_pos[1])]["occupied"] == False:
         actions.append("west")
-    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if move_down <= 4 and state_map["{},{}".format(agent_pos[0], move_down)]["occupied"] == False:
         actions.append("south")
-    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1])]["occupied"] == False:
+    if move_up >= 0 and state_map["{},{}".format(agent_pos[0], move_up)]["occupied"] == False:
         actions.append("north")
-        
-    return actions
     
+    print("Current actions: " + str(actions))
+    return actions
+
 def PRandom(actions, q_table, agent_pos):
     num = len(actions)
     
     random.seed(datetime.now())
     index = random.randrange(0,num)
     
-    return q_table[agent_pos[0]][agent_pos[1]][actions[index]], actions[index]
+    q_value = q_table[agent_pos[0]][agent_pos[1]][actions[index]]
+    direction = actions[index]
+
+    return q_value, direction
 
 def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
-    agent_x = agent_pos[0]
-    agent_y = agent_pos[1]
+    agent_next_pos = agent_pos[:]
     if action_to_perform == "north":
-        agent_y -= 1
+        agent_next_pos[1] -= 1
     elif action_to_perform == "south":
-        agent_y += 1
+        agent_next_pos[1] += 1
     elif action_to_perform == "east":
-        agent_x += 1
+        agent_next_pos[0] += 1
     elif action_to_perform == "west":
-        agent_x -= 1
-    
-    actions = ["north", "south", "east","west"]
+        agent_next_pos[0] -= 1
+
+    actions = check_available_moves(agent_next_pos, state_map)
     
     random.seed(datetime.now())
-    index = random.randrange(0,len(actions)-1)
+    index = random.randrange(0,len(actions))
     
     temp_reward = -1
     
-    if state_map["{},{}".format(agent_x, agent_y)]["pickup"] == True or state_map["{},{}".format(agent_x, agent_y)]["dropoff"] == True:
-        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_x, agent_y)])
+    if state_map["{},{}".format(agent_next_pos[0], agent_next_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_next_pos[0], agent_next_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_next_pos[0], agent_next_pos[1])])
     
-    return q_table[agent_x][agent_y][actions[index]], temp_reward
+    direction = actions[index]
+    next_q_value = q_table[agent_next_pos[0]][agent_next_pos[1]][direction]
+    current_pos_as_key = "{},{}".format(agent_next_pos[0], agent_next_pos[1])
+    state_map[current_pos_as_key]["occupied"] = True
+    return next_q_value, temp_reward, direction, state_map
 
 def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon,agent):
     #Moves agent to action "a" and gets Q(a',s') value
-    agent_x = agent_pos[0]
-    agent_y = agent_pos[1]
+    agent_next_pos = agent_pos[:]
     if action_to_perform == "north":
-        agent_y -= 1
+        agent_next_pos[1] -= 1
     elif action_to_perform == "south":
-        agent_y += 1
+        agent_next_pos[1] += 1
     elif action_to_perform == "east":
-        agent_x += 1
+        agent_next_pos[0] += 1
     elif action_to_perform == "west":
-        agent_x -= 1
+        agent_next_pos[0] -= 1
     
-    actions = ["north", "south", "east","west"]
+    actions = check_available_moves(agent_next_pos, state_map)
     
     random.seed(datetime.now())
     
     probability = random.uniform(0,1)
     
-    max_action, max_q_value = choose_max_action(actions, q_table, agent_pos)
-    
-    if probability <= epsilon :
-        actions.remove(max_action)
-        next_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
+    max_action = get_best_action(agent_next_pos, actions, q_table)
+    max_q_value = q_table[agent_next_pos[0]][agent_next_pos[1]][max_action]
+
+    if len(actions) > 1:
+        if probability <= epsilon:
+            actions.remove(max_action)
+            next_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
+        else:
+            next_q_value = max_q_value
+            action_to_perform = max_action
     else:
-        next_q_value = max_q_value
-        action_to_perform = max_action
+        action_to_perform = actions[0]
+        next_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
     
     temp_reward = -1
     
-    if state_map["{},{}".format(agent_x, agent_y)]["pickup"] == True or state_map["{},{}".format(agent_x, agent_y)]["dropoff"] == True:
-        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_x, agent_y)])
+    if state_map["{},{}".format(agent_next_pos[0], agent_next_pos[1])]["pickup"] == True or state_map["{},{}".format(agent_next_pos[0], agent_next_pos[1])]["dropoff"] == True:
+        temp_reward = return_position_reward(agent, state_map["{},{}".format(agent_next_pos[0], agent_next_pos[1])])
     
-    
-    return q_table[agent_x][agent_y][action_to_perform], temp_reward
+    current_pos_as_key = "{},{}".format(agent_next_pos[0], agent_next_pos[1])
+    state_map[current_pos_as_key]["occupied"] = True
+    return next_q_value, temp_reward, action_to_perform, state_map
 
 
 def PExploit(actions, q_table, agent_pos, epsilon):
-    num = len(actions)
-    
     random.seed(datetime.now())
     
     probability = random.uniform(0,1)
     
-    max_action, max_q_value = choose_max_action(actions, q_table, agent_pos)
+    max_action = get_best_action(agent_pos, actions, q_table)
+    max_q_value = q_table[agent_pos[0]][agent_pos[1]][max_action]
     
-    if probability <= epsilon :
-        actions.remove(max_action)
-        current_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
+    if len(actions) > 1:
+        if probability <= epsilon:
+            actions.remove(max_action)
+            current_q_value, action_to_perform = PRandom(actions, q_table, agent_pos) 
+        else:
+            current_q_value = max_q_value
+            action_to_perform = max_action
     else:
-        current_q_value = max_q_value
-        action_to_perform = max_action
+        action_to_perform = actions[0]
+        current_q_value = q_table[agent_pos[0]][agent_pos[1]][action_to_perform]
         
     return current_q_value, action_to_perform
+
     
 def choose_max_action(actions,q_table,agent_pos):
     max_val = -99
