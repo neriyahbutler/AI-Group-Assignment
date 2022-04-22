@@ -211,7 +211,7 @@ while game_bool:
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_male_dropoff, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, male_next_action)
                 else:
-                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
+                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor)
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
@@ -286,7 +286,7 @@ while game_bool:
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_female_dropoff, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, female_next_action)
                 else:
-                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
+                    q_table_female_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
                 
                 
 
