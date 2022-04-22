@@ -42,6 +42,14 @@ q_table_male_dropoff = helper_functions.generate_qtable()
 q_table_female_pickup = helper_functions.generate_qtable()
 q_table_female_dropoff = helper_functions.generate_qtable()
 
+#Creates tables for Position Mapping
+
+heatmap_male_pickup = helper_functions.generate_heatMap()
+heatmap_male_dropoff = helper_functions.generate_heatMap()
+
+heatmap_female_pickup = helper_functions.generate_heatMap()
+heatmap_female_dropoff = helper_functions.generate_heatMap()
+
 #  All the positions we need for the pickup and dropoff blocks
 #  In addition to this, it sets all the positions in the "game_board_positions" dictionary to have
 #  the rewards/dropff and pickup status that match the position
@@ -201,17 +209,20 @@ while game_bool:
 
             # Q learning algorithm returns updated q table, updated gmae board positions dictionary and the action of the agent to take
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
-            
+
+
             if male.get_block_count() == 0:
+                heatmap_male_pickup = helper_functions.update_heatmap(current_pos, heatmap_male_pickup)
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_male_pickup, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, male_next_action)
                 else:
                     q_table_male_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_pickup, game_board_positions, learning_rate, discount_factor)
             else:
+                heatmap_male_dropoff = helper_functions.update_heatmap(current_pos, heatmap_male_dropoff)
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_male_dropoff, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, male_next_action)
                 else:
-                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor)
+                    q_table_male_dropoff, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, male, q_table_male_dropoff, game_board_positions, learning_rate, discount_factor)
 
             # Checks the males current position to see if it is in a dropoff/pickup position. If it is, then
             # we check to see if the agent is able to pickup/dropoff in the first place (like "Does the agent have
@@ -226,6 +237,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.increase_block_count()
+                    heatmap_male_pickup = helper_functions.update_heatmap(current_pos, heatmap_male_pickup)
                     steps -= 1
 
             # Checking if position is dropoff spot
@@ -238,6 +250,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
+                    heatmap_male_dropoff = helper_functions.update_heatmap(current_pos, heatmap_male_dropoff)
                     steps -= 1
                     male.increment_dropoff_count()
 
@@ -257,7 +270,7 @@ while game_bool:
             
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-            
+            print("occupied: ", current_pos[0], current_pos[1])
             if male.get_coor() == female.get_coor():
                 pygame.time.wait(1000)
                 print("stacked")
@@ -278,11 +291,13 @@ while game_bool:
             # If the male has at least one block, we use the dropoff qtable. Otherwise we use pickup
             
             if female.get_block_count() == 0:
+                heatmap_female_pickup = helper_functions.update_heatmap(current_pos, heatmap_female_pickup)
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_female_pickup, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor, policy_epsilon,8000-steps, female_next_action)
                 else:
                     q_table_female_pickup, game_board_positions, action_to_take = helper_functions.q_learning(current_policy, female, q_table_female_pickup, game_board_positions, learning_rate, discount_factor)
             else:
+                heatmap_female_dropoff = helper_functions.update_heatmap(current_pos, heatmap_female_dropoff)
                 if experiment_input == "2" or experiment_input == "4":
                     q_table_female_dropoff, game_board_positions, action_to_take, next_action = helper_functions.sarsa_learning(female, q_table_female_dropoff, game_board_positions, learning_rate, discount_factor, policy_epsilon, 8000-steps, female_next_action)
                 else:
@@ -303,6 +318,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.increase_block_count()
+                    heatmap_female_pickup = helper_functions.update_heatmap(current_pos, heatmap_female_pickup)
                     steps -= 1
 
             # Checking if position is dropoff spot
@@ -315,6 +331,7 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.decrease_block_count()
+                    heatmap_female_dropoff = helper_functions.update_heatmap(current_pos, heatmap_female_dropoff)
                     steps -= 1
                     female.increment_dropoff_count()
 
@@ -377,6 +394,7 @@ while game_bool:
         helper_functions.save_qtables_in_text_file(q_table_male_dropoff, "exp-{}".format(experiment_input), "q_table_male_dropoff.txt")
         helper_functions.save_qtables_in_text_file(q_table_female_pickup, "exp-{}".format(experiment_input), "q_table_female_pickup.txt")
         helper_functions.save_qtables_in_text_file(q_table_female_dropoff, "exp-{}".format(experiment_input), "q_table_female_dropoff.txt")
+        helper_functions.save_heatmaps_in_text_file(heatmap_male_dropoff, heatmap_male_pickup, heatmap_female_dropoff, heatmap_female_pickup, "exp-{}".format(experiment_input))
 
         helper_functions.generate_attractive_paths_image(win, male, female,
             game_board_positions, game_board,
