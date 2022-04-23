@@ -95,15 +95,28 @@ def return_position_reward(agent, pos_in_state_map):
 
 def check_possible_actions(agent_pos, state_map):
     actions = []
-    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"] == False:
-        actions.append("east")
-    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0] - 1, agent_pos[1])]["occupied"] == False:
-        actions.append("west")
-    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1] + 1)]["occupied"] == False:
-        actions.append("south")
-    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"] == False:
-        actions.append("north")
-    return actions
+    blocked_direction = ""
+    if agent_pos[0] < 4:
+        if not state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"]:
+            actions.append("east")
+        else:
+            blocked_direction = "east"
+    if agent_pos[0] > 0:
+        if not state_map["{},{}".format(agent_pos[0] - 1, agent_pos[1])]["occupied"]:
+            actions.append("west")
+        else:
+            blocked_direction = "west"
+    if agent_pos[1] < 4:
+        if not state_map["{},{}".format(agent_pos[0], agent_pos[1] + 1)]["occupied"]:
+            actions.append("south")
+        else:
+            blocked_direction = "south"
+    if agent_pos[1] > 0:
+        if not state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"]:
+            actions.append("north")
+        else:
+            blocked_direction = "north"
+    return actions, blocked_direction
 
 
 def get_best_action(agent_pos, actions, q_table):
@@ -132,12 +145,21 @@ def get_best_action(agent_pos, actions, q_table):
 
     return best_action
 
+def check_if_best_blocked(agent, q_table, blocked_direction):
+    agent_pos = agent.get_coor()
+    actions = ["east", "west", "south", "north"]
+    if blocked_direction == get_best_action(agent_pos, actions, q_table):
+        agent.increment_blocked_counter()
+
 
 def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     agent_pos = agent.get_coor()
-    actions = check_possible_actions(agent_pos, state_map)
-    action_to_perform = ""
+    actions, blocked_direction = check_possible_actions(agent_pos, state_map)
+    # check if other agent is blocking the best action
+    if blocked_direction != "":
+        check_if_best_blocked(agent, q_table, blocked_direction)
 
+    action_to_perform = ""
     best_action = get_best_action(agent_pos, actions, q_table)
 
     seed_value = random.randrange(sys.maxsize)
@@ -170,7 +192,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # dropoff/pickup a block
     
     new_agent_pos = calculate_new_coor(action_to_perform, agent_pos)
-    actions_for_new_state = check_possible_actions(new_agent_pos, state_map)
+    actions_for_new_state, null_block_direction = check_possible_actions(new_agent_pos, state_map)
     second_action_to_perform = get_best_action(new_agent_pos, actions_for_new_state, q_table)
 
     if state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])]["pickup"] == True or state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])]["dropoff"] == True:
@@ -216,7 +238,7 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
 
     return q_table, state_map, action_to_perform, next_action
 
-def check_available_moves(agent_pos,state_map):
+def check_available_moves(agent,agent_pos,state_map):
     actions = []
     move_up = agent_pos[1]-1
     move_down = agent_pos[1]+1
@@ -605,14 +627,16 @@ def save_heatmaps_in_text_file(male_dropoff, male_pickup, female_dropoff, female
             f.write("{}\n\n\n".format(heatmap_dist))
 
 def find_heatmap_distribution(heatmap):
+    maxval = 0
     total = 0
     for x in range(heatmap.shape[0]):
         for y in range(heatmap.shape[1]):
             total += heatmap[x][y]
+            maxval = max(maxval, heatmap[x][y])
 
     distribution_map = np.zeros((heatmap.shape[0], heatmap.shape[1]), dtype=float)
     for x in range(heatmap.shape[0]):
         for y in range(heatmap.shape[1]):
-            distribution_map[x][y] = (heatmap[x][y] / total)
+            distribution_map[x][y] = (heatmap[x][y] / maxval)
 
     return total, distribution_map

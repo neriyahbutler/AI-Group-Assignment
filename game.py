@@ -365,6 +365,8 @@ while game_bool:
         female_next_action = ""
         male.add_steps_to_list()
         female.add_steps_to_list()
+        male.add_blocking_to_list()
+        female.add_blocking_to_list()
         male, female, game_board_positions = helper_functions.reset_world(male, female, game_board_positions, pickup_positions, dropoff_positions, pickup_count, [male_start_position, female_start_position])
         for pos in pickup_positions:
             game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].update_symbol()
@@ -402,20 +404,27 @@ while game_bool:
             q_table_male_pickup, q_table_male_dropoff,
             q_table_female_pickup, q_table_female_dropoff, './exp-{}/'.format(experiment_input))
         
-        
+        print("---Male Data---")
         print("male dropoff total: " + str(male.get_dropoffs()))
         print("male total steps: " + str(male.get_total_steps()))
         male_steps_list = male.get_steps_list()
         print("total terminal states: " + str(len(male_steps_list)))
         print("male array: " + str(male_steps_list))
+        male_blocked_list = male.get_blocked_list()
+        print("male blocked array: " + str(male_blocked_list))
         print("avg steps to reach terminal state : " + str(male.get_avg_steps_per_terminal_state()))
-        
+        print("\n")
+
+        print("---Female Data---")
         print("Female dropoff total: " + str(female.get_dropoffs()))
         print("Female total steps: " + str(female.get_total_steps()))
         female_steps_list = female.get_steps_list()
         print("total terminal states: " + str(len(female_steps_list)))
         print("female array: " + str(female_steps_list))
+        female_blocked_list = female.get_blocked_list()
+        print("female blocked array: " + str(female_blocked_list))
         print("avg steps to reach terminal state : " + str(female.get_avg_steps_per_terminal_state()))
+        print("\n")
             
     if steps > 8000 - helper_functions.experiment_settings[experiment_input][0][0]:
         current_policy = helper_functions.experiment_settings[experiment_input][0][1]

@@ -83,3 +83,20 @@ class Agent(object):
             total += self.terminal_state_steps[i]
         
         return total/len(self.terminal_state_steps)
+
+    def get_blocked_counter(self):
+        return self.times_blocked
+
+    def get_total_blocked_counter(self):
+        return self.total_times_blocked
+
+    def get_blocked_list(self):
+        return self.times_blocked_terminate
+
+    def increment_blocked_counter(self):
+        self.times_blocked += 1
+
+    def add_blocking_to_list(self):
+        self.times_blocked_terminate.append(self.times_blocked)
+        self.total_times_blocked += self.times_blocked
+        self.times_blocked = 0
