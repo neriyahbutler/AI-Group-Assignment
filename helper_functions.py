@@ -11,6 +11,9 @@ import math
 
 import sys
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 font_path = os.path.join(base_path, "./font/Joystix.ttf")
@@ -63,6 +66,7 @@ def set_points_dropoff(points_map, points_to_change_arr):
 
     return points_map
 
+
 def policy_verify(current_policy):
     if not isinstance(current_policy, (str)):
         return False
@@ -75,6 +79,7 @@ def policy_verify(current_policy):
     else:
         return False
 
+
 def step_verify(steps):
     if not isinstance(steps, int):
         return False
@@ -82,6 +87,7 @@ def step_verify(steps):
         return False
     else:
         return True
+
 
 def return_position_reward(agent, pos_in_state_map):
     if pos_in_state_map["pickup"] == True:
@@ -95,15 +101,28 @@ def return_position_reward(agent, pos_in_state_map):
 
 def check_possible_actions(agent_pos, state_map):
     actions = []
-    if agent_pos[0] < 4 and state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"] == False:
-        actions.append("east")
-    if agent_pos[0] > 0 and state_map["{},{}".format(agent_pos[0] - 1, agent_pos[1])]["occupied"] == False:
-        actions.append("west")
-    if agent_pos[1] < 4 and state_map["{},{}".format(agent_pos[0], agent_pos[1] + 1)]["occupied"] == False:
-        actions.append("south")
-    if agent_pos[1] > 0 and state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"] == False:
-        actions.append("north")
-    return actions
+    blocked_direction = ""
+    if agent_pos[0] < 4:
+        if not state_map["{},{}".format(agent_pos[0] + 1, agent_pos[1])]["occupied"]:
+            actions.append("east")
+        else:
+            blocked_direction = "east"
+    if agent_pos[0] > 0:
+        if not state_map["{},{}".format(agent_pos[0] - 1, agent_pos[1])]["occupied"]:
+            actions.append("west")
+        else:
+            blocked_direction = "west"
+    if agent_pos[1] < 4:
+        if not state_map["{},{}".format(agent_pos[0], agent_pos[1] + 1)]["occupied"]:
+            actions.append("south")
+        else:
+            blocked_direction = "south"
+    if agent_pos[1] > 0:
+        if not state_map["{},{}".format(agent_pos[0], agent_pos[1] - 1)]["occupied"]:
+            actions.append("north")
+        else:
+            blocked_direction = "north"
+    return actions, blocked_direction
 
 
 def get_best_action(agent_pos, actions, q_table):
@@ -133,11 +152,21 @@ def get_best_action(agent_pos, actions, q_table):
     return best_action
 
 
+def check_if_best_blocked(agent, q_table, blocked_direction):
+    agent_pos = agent.get_coor()
+    actions = ["east", "west", "south", "north"]
+    if blocked_direction == get_best_action(agent_pos, actions, q_table):
+        agent.increment_blocked_counter()
+
+
 def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     agent_pos = agent.get_coor()
-    actions = check_possible_actions(agent_pos, state_map)
-    action_to_perform = ""
+    actions, blocked_direction = check_possible_actions(agent_pos, state_map)
+    # check if other agent is blocking the best action
+    if blocked_direction != "":
+        check_if_best_blocked(agent, q_table, blocked_direction)
 
+    action_to_perform = ""
     best_action = get_best_action(agent_pos, actions, q_table)
 
     seed_value = random.randrange(sys.maxsize)
@@ -170,7 +199,7 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # dropoff/pickup a block
     
     new_agent_pos = calculate_new_coor(action_to_perform, agent_pos)
-    actions_for_new_state = check_possible_actions(new_agent_pos, state_map)
+    actions_for_new_state, null_block_direction = check_possible_actions(new_agent_pos, state_map)
     second_action_to_perform = get_best_action(new_agent_pos, actions_for_new_state, q_table)
 
     if state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])]["pickup"] == True or state_map["{},{}".format(new_agent_pos[0], new_agent_pos[1])]["dropoff"] == True:
@@ -184,12 +213,12 @@ def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     # Returns updated q table, updated map containing the information about each point, as well as the action that is to be performed by the agent
     return q_table, state_map, action_to_perform
 
-  
+
 def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, policy, steps, action_to_perform):
     agent_pos = agent.get_coor()
     actions = []
     agent_start = agent_pos[:]
-    actions = check_available_moves(agent_pos,state_map)
+    actions = check_available_moves(agent, agent_pos, state_map)
     print("Agent at coordinate --> x: " + str(agent_pos[0]) + " y: " + str(agent_pos[1]))
     
     if steps <= 500: #PRandom
@@ -216,7 +245,8 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
 
     return q_table, state_map, action_to_perform, next_action
 
-def check_available_moves(agent_pos,state_map):
+
+def check_available_moves(agent, agent_pos, state_map):
     actions = []
     move_up = agent_pos[1]-1
     move_down = agent_pos[1]+1
@@ -235,6 +265,7 @@ def check_available_moves(agent_pos,state_map):
     print("Current actions: " + str(actions))
     return actions
 
+
 def PRandom(actions, q_table, agent_pos):
     num = len(actions)
     
@@ -245,6 +276,7 @@ def PRandom(actions, q_table, agent_pos):
     direction = actions[index]
 
     return q_value, direction
+
 
 def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
     agent_next_pos = agent_pos[:]
@@ -257,7 +289,7 @@ def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
     elif action_to_perform == "west":
         agent_next_pos[0] -= 1
 
-    actions = check_available_moves(agent_next_pos, state_map)
+    actions = check_available_moves(agent,agent_next_pos, state_map)
     
     random.seed(datetime.now())
     index = random.randrange(0,len(actions))
@@ -273,6 +305,7 @@ def Random_Q(action_to_perform, q_table, state_map, agent_pos,agent):
     state_map[current_pos_as_key]["occupied"] = True
     return next_q_value, temp_reward, direction, state_map
 
+
 def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon,agent):
     #Moves agent to action "a" and gets Q(a',s') value
     agent_next_pos = agent_pos[:]
@@ -285,7 +318,7 @@ def Exploit_Q(action_to_perform, q_table, state_map, agent_pos, epsilon,agent):
     elif action_to_perform == "west":
         agent_next_pos[0] -= 1
     
-    actions = check_available_moves(agent_next_pos, state_map)
+    actions = check_available_moves(agent, agent_next_pos, state_map)
     
     random.seed(datetime.now())
     
@@ -336,7 +369,7 @@ def PExploit(actions, q_table, agent_pos, epsilon):
         
     return current_q_value, action_to_perform
 
-    
+
 def choose_max_action(actions,q_table,agent_pos):
     max_val = -99
     prev_max_val = max_val
@@ -379,13 +412,16 @@ def generate_qtable():
 
     return q_table
 
+
 def generate_heatMap():
     heatmap = np.zeros((5, 5), dtype=int)
     return heatmap
 
+
 def update_heatmap(pos, heatmap):
     heatmap[pos[0]][pos[1]] += 1
     return heatmap
+
 
 def check_dropoff_capacity(state_map, dropoff_pos):
     for pos in dropoff_pos:
@@ -586,9 +622,11 @@ def save_qtables_in_text_file(q_table, filedir="test", filename="test.txt"):
             for y in range(0, len(q_table)):
                 f.write("({}, {}) = {}\n".format(x, y, q_table[x][y]))
 
+
 def save_heatmaps_in_text_file(male_dropoff, male_pickup, female_dropoff, female_pickup, filedir="test"):
     heatmaps = [male_dropoff, male_pickup, female_dropoff, female_pickup]
     heatmap_names = ["---Male Dropoff HeatMap---", "---Male Pickup HeatMap---", "---Female Dropoff HeatMap---", "---Female Pickup HeatMap---"]
+    heatmap_filenmaes = ["male_dropoff_heatmap.jpeg", "male_pickup_heatmap.jpeg","female_dropoff_heatmap.jpeg", "female_pickup_heatmap.jpeg"]
     filename = "heatmaps.txt"
     try:
         os.mkdir(filedir)
@@ -603,16 +641,29 @@ def save_heatmaps_in_text_file(male_dropoff, male_pickup, female_dropoff, female
             f.write("Total Steps: {}\n".format(total_steps))
             f.write("Distribution:\n")
             f.write("{}\n\n\n".format(heatmap_dist))
+            make_heatmap(heatmap_names[i], heatmap_dist, filedir, heatmap_filenmaes[i])
+        f.close
+
+
+def make_heatmap(title, heatmap, filedir, filename):
+    plt.clf()
+    sns.heatmap(heatmap, linewidth=0.3)
+    plt.title(title)
+    plt.savefig("./{}/{}".format(filedir, filename))
+
 
 def find_heatmap_distribution(heatmap):
+    maxval = 0
     total = 0
     for x in range(heatmap.shape[0]):
         for y in range(heatmap.shape[1]):
             total += heatmap[x][y]
+            maxval = max(maxval, heatmap[x][y])
 
     distribution_map = np.zeros((heatmap.shape[0], heatmap.shape[1]), dtype=float)
     for x in range(heatmap.shape[0]):
         for y in range(heatmap.shape[1]):
-            distribution_map[x][y] = (heatmap[x][y] / total)
+            distribution_map[x][y] = (heatmap[x][y] / maxval)
 
     return total, distribution_map
+

@@ -7,6 +7,9 @@ class Female(agent.Agent):
         self.steps = 0
         self.dropoffs = 0
         self.terminal_state_steps = []
+        self.times_blocked = 0
+        self.total_times_blocked = 0
+        self.times_blocked_terminate = []
 
     def get_symbol(self):
         return self.symbol
