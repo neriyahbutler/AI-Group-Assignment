@@ -57,8 +57,8 @@ heatmap_female_dropoff = helper_functions.generate_heatMap()
 pickup_positions = [[4,2], [1,3]]
 dropoff_positions = [[4,0], [2,2], [0,0], [4,4]]
 
-male_start_position = [4,2]
-female_start_position = [0,2]
+male_start_position = [2,4]
+female_start_position = [2,0]
 
 male.set_coor(male_start_position)
 female.set_coor(female_start_position)
@@ -184,7 +184,7 @@ while game_bool:
 
     # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
     # each move, modify the number
-    pygame.time.wait(1)
+    pygame.time.wait(1000)
     
     if test_bool:
         # Fills out the background of the visualization window with black
