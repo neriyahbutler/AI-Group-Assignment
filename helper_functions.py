@@ -157,13 +157,14 @@ def check_if_best_blocked(agent, q_table, blocked_direction):
     actions = ["east", "west", "south", "north"]
     if blocked_direction == get_best_action(agent_pos, actions, q_table):
         agent.increment_blocked_counter()
+        agent.add_to_blocked_list()
 
 
 def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     agent_pos = agent.get_coor()
     actions, blocked_direction = check_possible_actions(agent_pos, state_map)
     # check if other agent is blocking the best action
-    if blocked_direction != "":
+    if blocked_direction != "": # and mode != "PRandom"
         check_if_best_blocked(agent, q_table, blocked_direction)
 
     action_to_perform = ""
@@ -575,11 +576,11 @@ def generate_attractive_paths_image(win, male, female, state_map, game_board,
             q_table_male_pickup, q_table_male_dropoff, 
             q_table_female_pickup, q_table_female_dropoff, path="./test/"):
 
-        print("Male Q-Table Dropoff\n", q_table_male_dropoff, "\n")
-        print("Male Q-Table Pickup\n", q_table_male_pickup, "\n")
+        # print("Male Q-Table Dropoff\n", q_table_male_dropoff, "\n")
+        # print("Male Q-Table Pickup\n", q_table_male_pickup, "\n")
 
-        print("Female Q-Table Dropoff\n", q_table_female_dropoff, "\n")
-        print("Female Q-Table Pickup\n", q_table_female_pickup, "\n")
+        # print("Female Q-Table Dropoff\n", q_table_female_dropoff, "\n")
+        # print("Female Q-Table Pickup\n", q_table_female_pickup, "\n")
         
         display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
         display_arrows(win, q_table_male_pickup)
@@ -613,7 +614,7 @@ def save_qtables_in_text_file(q_table, filedir="test", filename="test.txt"):
     try:
         os.mkdir(filedir)
     except:
-        print("Directory {} already exists, saving file there".format(filedir))
+        print("Directory {} already exists, saving q-table there".format(filedir))
     updated_filedir = "./{}/{}".format(filedir, filename)
     with open(updated_filedir, "w") as f:
         for x in range(0, len(q_table)):
@@ -629,7 +630,7 @@ def save_heatmaps_in_text_file(male_dropoff, male_pickup, female_dropoff, female
     try:
         os.mkdir(filedir)
     except:
-        print("Directory {} already exists, saving file there".format(filedir))
+        print("Directory {} already exists, saving heatmaps there".format(filedir))
     updated_filedir = "./{}/{}".format(filedir, filename)
     with open(updated_filedir, "w") as f:
         for i in range(len(heatmaps)):
@@ -664,4 +665,84 @@ def find_heatmap_distribution(heatmap):
             distribution_map[x][y] = (heatmap[x][y] / maxval)
 
     return total, distribution_map
+
+def wipe_experiment_stats(filedir):
+    filename = "experiment_statistics.txt"
+    location = "./{}/{}".format(filedir, filename)
+    try:
+        os.mkdir(filedir)
+    except:
+        print("Making Directory: {}".format(filedir))
+    if os.path.exists(location):
+        f = open(location, "r+")
+        f.truncate(0)
+    else:
+        with open(location, "x") as f:
+            f.write("Stats File!")
+
+
+def write_run_stats(agentM, agentF, runnum, filedir, dropoff_locations):
+    filename = "experiment_statistics.txt"
+    agents = [agentM, agentF]
+    try:
+        os.mkdir(filedir)
+    except:
+        print("Finishing Run {}".format(runnum))
+    updated_filedir = "./{}/{}".format(filedir, filename)
+    with open(updated_filedir, "a") as f:
+        f.write("\n\n---Run: {}---\n".format(runnum))
+        for agent in agents:
+            if agent == agentM:
+                f.write("Male Values:\n")
+            else:
+                f.write("Female Values:\n")
+            f.write("Steps taken: {}\n".format(agent.get_steps()))
+            f.write("Pickups Happen at Steps: {}\n".format(agent.get_steps_to_pickup()))
+            f.write("Drop-offs Happen at Steps: {}\n".format(agent.get_steps_to_dropoff()))
+            f.write("Agent Did {} Drop-offs! By Location:\n".format(agent.get_dropoffs()))
+            f.write("{}: {}\n{}: {}\n{}: {}\n{}: {}\n".format(dropoff_locations[0], agent.get_visit()[0],
+                                                            dropoff_locations[1], agent.get_visit()[1],
+                                                            dropoff_locations[2], agent.get_visit()[2],
+                                                            dropoff_locations[3], agent.get_visit()[3],))
+
+            if agent.get_blocked_counter() == 0:
+                f.write("This agent was not blocked :)\n")
+            else:
+                f.write("Agent was blocked {} times!\n".format(agent.get_blocked_counter()))
+                f.write("Blocking happened at steps: {}\n".format(agent.get_steps_blocked_at()))
+
+
+def write_final_stats(agentM, agentF, filedir, dropoff_locations):
+    filename = "experiment_statistics.txt"
+    agents = [agentM, agentF]
+    try:
+        os.mkdir(filedir)
+    except:
+        print("Directory {} already exists, saving final stats there".format(filedir))
+    updated_filedir = "./{}/{}".format(filedir, filename)
+    with open(updated_filedir, "a") as f:
+        f.write("\n\n---Final Stats---\n")
+        for agent in agents:
+            if agent == agentM:
+                f.write("Male Stats:\n")
+                name = "Male"
+            else:
+                f.write("Female Stats:\n")
+                name = "Female"
+            f.write("{} dropoff total: {}\n".format(name, str(agent.get_total_dropoffs())))
+            f.write("{}: {}\n{}: {}\n{}: {}\n{}: {}\n".format(dropoff_locations[0], agent.get_total_visits()[0],
+                                                              dropoff_locations[1], agent.get_total_visits()[1],
+                                                              dropoff_locations[2], agent.get_total_visits()[2],
+                                                              dropoff_locations[3], agent.get_total_visits()[3], ))
+
+            f.write("{} total steps: {}\n".format(name, str(agent.get_total_steps())))
+            steps_list = agent.get_steps_list()
+            f.write("{} steps in each round: {}\n".format(name, str(steps_list)))
+            f.write("Total terminal states: {}\n".format(str(len(steps_list))))
+            f.write("{} average steps to reach terminal state : {}\n".format(name, str(agent.get_avg_steps_per_terminal_state())))
+            blocked_list = agent.get_blocked_list()
+            f.write("{} times blocked each round: {}\n".format(name, blocked_list))
+            f.write("Total times blocked: {}\n".format(agent.get_total_blocked_counter()))
+            f.write("\n")
+        print("All results available in the {} directory!".format(filedir))
 

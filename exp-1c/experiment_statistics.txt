@@ -1,0 +1,293 @@
+Stats File!
+
+---Run: 1---
+Male Values:
+Steps taken: 365
+Pickups Happen at Steps: [0, 6, 30, 66, 86, 124, 150, 160, 226, 262]
+Drop-offs Happen at Steps: [3, 11, 39, 77, 105, 141, 157, 219, 229, 283]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [2]
+[2, 2]: [2]
+[0, 0]: [2]
+[4, 4]: [4]
+This agent was not blocked :)
+Female Values:
+Steps taken: 365
+Pickups Happen at Steps: [10, 22, 32, 40, 96, 104, 156, 168, 202, 282]
+Drop-offs Happen at Steps: [19, 27, 37, 51, 99, 107, 159, 191, 275, 363]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [3]
+[2, 2]: [3]
+[0, 0]: [3]
+[4, 4]: [1]
+Agent was blocked 24 times!
+Blocking happened at steps: [8, 16, 40, 49, 57, 72, 77, 98, 138, 150, 153, 168, 177, 187, 208, 259, 262, 264, 267, 270, 272, 307, 312, 360]
+
+
+---Run: 2---
+Male Values:
+Steps taken: 501
+Pickups Happen at Steps: [0, 14, 22, 36, 44, 70, 190]
+Drop-offs Happen at Steps: [3, 17, 29, 41, 65, 87, 277]
+Agent Did 7 Drop-offs! By Location:
+[4, 0]: [2]
+[2, 2]: [3]
+[0, 0]: [1]
+[4, 4]: [1]
+This agent was not blocked :)
+Female Values:
+Steps taken: 513
+Pickups Happen at Steps: [8, 30, 42, 48, 58, 74, 84, 126, 132, 156, 166, 174, 280]
+Drop-offs Happen at Steps: [27, 35, 45, 53, 65, 81, 95, 129, 153, 163, 171, 177, 511]
+Agent Did 13 Drop-offs! By Location:
+[4, 0]: [3]
+[2, 2]: [2]
+[0, 0]: [4]
+[4, 4]: [4]
+Agent was blocked 30 times!
+Blocking happened at steps: [21, 39, 50, 60, 69, 71, 72, 99, 102, 104, 107, 109, 114, 115, 119, 143, 149, 184, 187, 244, 246, 248, 252, 338, 399, 400, 402, 437, 460, 488]
+
+
+---Run: 3---
+Male Values:
+Steps taken: 341
+Pickups Happen at Steps: [0, 28, 66, 104, 162, 192, 224]
+Drop-offs Happen at Steps: [17, 37, 75, 127, 177, 203, 339]
+Agent Did 7 Drop-offs! By Location:
+[4, 0]: [0]
+[2, 2]: [3]
+[0, 0]: [3]
+[4, 4]: [1]
+This agent was not blocked :)
+Female Values:
+Steps taken: 352
+Pickups Happen at Steps: [2, 42, 52, 58, 68, 74, 90, 102, 126, 184, 192, 232, 276]
+Drop-offs Happen at Steps: [23, 45, 55, 61, 71, 85, 99, 121, 173, 189, 211, 247, 327]
+Agent Did 13 Drop-offs! By Location:
+[4, 0]: [5]
+[2, 2]: [2]
+[0, 0]: [2]
+[4, 4]: [4]
+Agent was blocked 27 times!
+Blocking happened at steps: [32, 96, 97, 113, 116, 118, 119, 141, 164, 180, 186, 200, 211, 218, 219, 221, 222, 223, 226, 241, 273, 274, 306, 307, 309, 312, 313]
+
+
+---Run: 4---
+Male Values:
+Steps taken: 383
+Pickups Happen at Steps: [0, 16, 36, 50, 70, 80, 86, 98, 108, 124, 212, 228]
+Drop-offs Happen at Steps: [11, 25, 41, 55, 75, 83, 95, 103, 117, 177, 219, 381]
+Agent Did 12 Drop-offs! By Location:
+[4, 0]: [1]
+[2, 2]: [4]
+[0, 0]: [3]
+[4, 4]: [4]
+Agent was blocked 14 times!
+Blocking happened at steps: [33, 57, 63, 186, 215, 216, 217, 338, 340, 342, 359, 360, 364, 375]
+Female Values:
+Steps taken: 375
+Pickups Happen at Steps: [6, 18, 24, 30, 42, 52, 196, 216]
+Drop-offs Happen at Steps: [9, 21, 27, 39, 49, 189, 207, 225]
+Agent Did 8 Drop-offs! By Location:
+[4, 0]: [4]
+[2, 2]: [1]
+[0, 0]: [2]
+[4, 4]: [1]
+This agent was not blocked :)
+
+
+---Run: 5---
+Male Values:
+Steps taken: 252
+Pickups Happen at Steps: [0, 10, 26, 34, 40, 50, 58, 64, 70, 136]
+Drop-offs Happen at Steps: [3, 13, 31, 37, 47, 53, 61, 67, 77, 179]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [4]
+[2, 2]: [5]
+[0, 0]: [0]
+[4, 4]: [1]
+Agent was blocked 5 times!
+Blocking happened at steps: [15, 80, 82, 202, 224]
+Female Values:
+Steps taken: 253
+Pickups Happen at Steps: [4, 16, 34, 44, 50, 58, 70, 90, 104, 116]
+Drop-offs Happen at Steps: [9, 25, 41, 47, 53, 65, 81, 99, 111, 251]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [1]
+[2, 2]: [0]
+[0, 0]: [5]
+[4, 4]: [4]
+This agent was not blocked :)
+
+
+---Run: 6---
+Male Values:
+Steps taken: 461
+Pickups Happen at Steps: [0, 16, 24, 36, 54, 66, 94, 110, 242]
+Drop-offs Happen at Steps: [3, 19, 31, 51, 63, 89, 101, 167, 459]
+Agent Did 9 Drop-offs! By Location:
+[4, 0]: [5]
+[2, 2]: [2]
+[0, 0]: [1]
+[4, 4]: [1]
+This agent was not blocked :)
+Female Values:
+Steps taken: 464
+Pickups Happen at Steps: [2, 10, 16, 34, 70, 80, 90, 138, 208, 228, 236]
+Drop-offs Happen at Steps: [7, 13, 29, 63, 77, 85, 129, 159, 211, 233, 309]
+Agent Did 11 Drop-offs! By Location:
+[4, 0]: [0]
+[2, 2]: [3]
+[0, 0]: [4]
+[4, 4]: [4]
+Agent was blocked 35 times!
+Blocking happened at steps: [43, 44, 45, 54, 104, 171, 173, 175, 185, 186, 193, 195, 197, 199, 201, 202, 203, 204, 264, 270, 272, 273, 275, 281, 293, 297, 374, 376, 377, 380, 400, 408, 410, 437, 449]
+
+
+---Run: 7---
+Male Values:
+Steps taken: 193
+Pickups Happen at Steps: [0, 8, 20, 42, 50, 60, 78, 92, 100, 110, 126, 136]
+Drop-offs Happen at Steps: [3, 15, 37, 47, 55, 71, 85, 95, 107, 115, 131, 191]
+Agent Did 12 Drop-offs! By Location:
+[4, 0]: [0]
+[2, 2]: [5]
+[0, 0]: [5]
+[4, 4]: [2]
+Agent was blocked 5 times!
+Blocking happened at steps: [62, 63, 103, 105, 149]
+Female Values:
+Steps taken: 185
+Pickups Happen at Steps: [10, 16, 22, 28, 34, 40, 66, 78]
+Drop-offs Happen at Steps: [13, 19, 25, 31, 37, 57, 73, 99]
+Agent Did 8 Drop-offs! By Location:
+[4, 0]: [5]
+[2, 2]: [0]
+[0, 0]: [0]
+[4, 4]: [3]
+This agent was not blocked :)
+
+
+---Run: 8---
+Male Values:
+Steps taken: 334
+Pickups Happen at Steps: [0, 6, 14, 22, 36, 48, 54, 62, 72, 80, 90, 176, 196]
+Drop-offs Happen at Steps: [3, 9, 17, 27, 45, 51, 57, 65, 75, 87, 165, 187, 203]
+Agent Did 13 Drop-offs! By Location:
+[4, 0]: [5]
+[2, 2]: [4]
+[0, 0]: [3]
+[4, 4]: [1]
+Agent was blocked 21 times!
+Blocking happened at steps: [16, 29, 30, 68, 75, 87, 95, 131, 139, 142, 157, 161, 215, 217, 223, 233, 235, 237, 239, 286, 308]
+Female Values:
+Steps taken: 323
+Pickups Happen at Steps: [2, 24, 34, 48, 60, 68, 136]
+Drop-offs Happen at Steps: [11, 29, 39, 57, 65, 71, 321]
+Agent Did 7 Drop-offs! By Location:
+[4, 0]: [0]
+[2, 2]: [1]
+[0, 0]: [2]
+[4, 4]: [4]
+This agent was not blocked :)
+
+
+---Run: 9---
+Male Values:
+Steps taken: 457
+Pickups Happen at Steps: [0, 8, 20, 30, 46, 102, 126, 138, 226, 348]
+Drop-offs Happen at Steps: [5, 13, 27, 35, 97, 121, 133, 165, 343, 455]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [0]
+[2, 2]: [4]
+[0, 0]: [3]
+[4, 4]: [3]
+This agent was not blocked :)
+Female Values:
+Steps taken: 456
+Pickups Happen at Steps: [2, 30, 40, 64, 74, 80, 88, 118, 190, 286]
+Drop-offs Happen at Steps: [15, 33, 49, 71, 77, 85, 109, 143, 283, 377]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [5]
+[2, 2]: [1]
+[0, 0]: [2]
+[4, 4]: [2]
+Agent was blocked 35 times!
+Blocking happened at steps: [4, 5, 25, 26, 28, 66, 68, 82, 112, 120, 131, 139, 154, 172, 173, 175, 177, 179, 185, 187, 188, 236, 288, 294, 326, 333, 368, 374, 398, 410, 413, 417, 419, 421, 443]
+
+
+---Run: 10---
+Male Values:
+Steps taken: 330
+Pickups Happen at Steps: [0, 10, 22, 32, 48, 58, 70, 82, 92, 110]
+Drop-offs Happen at Steps: [5, 17, 27, 35, 55, 63, 77, 87, 105, 295]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [3]
+[2, 2]: [3]
+[0, 0]: [0]
+[4, 4]: [4]
+Agent was blocked 34 times!
+Blocking happened at steps: [15, 38, 44, 55, 58, 70, 73, 82, 92, 139, 141, 145, 147, 149, 150, 155, 169, 171, 175, 207, 211, 215, 221, 222, 243, 246, 298, 299, 300, 305, 316, 319, 323, 326]
+Female Values:
+Steps taken: 331
+Pickups Happen at Steps: [2, 14, 26, 66, 74, 88, 94, 248, 276, 288]
+Drop-offs Happen at Steps: [11, 19, 57, 69, 81, 91, 155, 257, 283, 329]
+Agent Did 10 Drop-offs! By Location:
+[4, 0]: [2]
+[2, 2]: [2]
+[0, 0]: [5]
+[4, 4]: [1]
+This agent was not blocked :)
+
+
+---Run: 11---
+Male Values:
+Steps taken: 339
+Pickups Happen at Steps: [0, 12, 36, 44, 56, 80, 226]
+Drop-offs Happen at Steps: [7, 27, 39, 49, 77, 153, 337]
+Agent Did 7 Drop-offs! By Location:
+[4, 0]: [2]
+[2, 2]: [3]
+[0, 0]: [1]
+[4, 4]: [1]
+This agent was not blocked :)
+Female Values:
+Steps taken: 350
+Pickups Happen at Steps: [6, 22, 34, 50, 56, 70, 80, 96, 178, 198, 210, 220, 284]
+Drop-offs Happen at Steps: [17, 25, 37, 53, 67, 77, 87, 101, 185, 205, 215, 279, 295]
+Agent Did 13 Drop-offs! By Location:
+[4, 0]: [3]
+[2, 2]: [2]
+[0, 0]: [4]
+[4, 4]: [4]
+Agent was blocked 12 times!
+Blocking happened at steps: [43, 58, 64, 72, 83, 92, 98, 124, 164, 165, 182, 246]
+
+
+---Final Stats---
+Male Stats:
+Male dropoff total: 107
+[4, 0]: [24]
+[2, 2]: [38]
+[0, 0]: [22]
+[4, 4]: [23]
+Male total steps: 3956
+Male steps in each round: [365, 501, 341, 383, 252, 461, 193, 334, 457, 330, 339]
+Total terminal states: 11
+Male average steps to reach terminal state : 359.6363636363636
+Male times blocked each round: [0, 0, 0, 14, 5, 0, 5, 21, 0, 34, 0]
+Total times blocked: 79
+
+Female Stats:
+Female dropoff total: 113
+[4, 0]: [31]
+[2, 2]: [17]
+[0, 0]: [33]
+[4, 4]: [32]
+Female total steps: 3967
+Female steps in each round: [365, 513, 352, 375, 253, 464, 185, 323, 456, 331, 350]
+Total terminal states: 11
+Female average steps to reach terminal state : 360.6363636363636
+Female times blocked each round: [24, 30, 27, 0, 0, 35, 0, 0, 35, 0, 12]
+Total times blocked: 163
+
