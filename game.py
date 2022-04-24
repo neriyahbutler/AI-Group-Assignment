@@ -147,6 +147,8 @@ if experiment_input == "3":
 if experiment_input == "4":
     doing_experiment_4 = True
 
+helper_functions.wipe_experiment_stats("exp-{}".format(experiment_input))
+
 while game_bool:
     # Fills out the background of the visualization window with black
     win.fill((0))
@@ -185,7 +187,7 @@ while game_bool:
     # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
     # each move, modify the number
     pygame.time.wait(1)
-    
+
     if test_bool:
         # Fills out the background of the visualization window with black
         win.fill((0))
@@ -237,8 +239,10 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.increase_block_count()
+                    male.add_to_pickup_list()
                     heatmap_male_pickup = helper_functions.update_heatmap(current_pos, heatmap_male_pickup)
                     steps -= 1
+                    male.increment_step()
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -250,9 +254,11 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     male.decrease_block_count()
+                    male.add_to_dropoff_list()
                     heatmap_male_dropoff = helper_functions.update_heatmap(current_pos, heatmap_male_dropoff)
                     steps -= 1
                     male.increment_dropoff_count()
+                    male.increment_step()
 
             # Sets the new position that the agent is one to be specified as occupied
             
@@ -318,8 +324,10 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].decrease_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.increase_block_count()
+                    female.add_to_pickup_list()
                     heatmap_female_pickup = helper_functions.update_heatmap(current_pos, heatmap_female_pickup)
                     steps -= 1
+                    female.increment_step()
 
             # Checking if position is dropoff spot
             elif game_board_positions[current_pos_as_key]["dropoff"] == True:
@@ -331,9 +339,11 @@ while game_bool:
                     game_board_positions[current_pos_as_key]["special_block"].increase_block_count()
                     game_board_positions[current_pos_as_key]["special_block"].update_symbol()
                     female.decrease_block_count()
+                    female.add_to_dropoff_list()
                     heatmap_female_dropoff = helper_functions.update_heatmap(current_pos, heatmap_female_dropoff)
                     steps -= 1
                     female.increment_dropoff_count()
+                    female.increment_step()
 
             if action_to_take == "north":
                 female.move_up()
@@ -361,6 +371,7 @@ while game_bool:
  
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):
+        helper_functions.write_run_stats(male, female, len(male.get_steps_list())+1, "exp-{}".format(experiment_input))
         male_next_action = ""
         female_next_action = ""
         male.add_steps_to_list()
@@ -405,7 +416,7 @@ while game_bool:
             q_table_female_pickup, q_table_female_dropoff, './exp-{}/'.format(experiment_input))
         
         print("---Male Data---")
-        print("male dropoff total: " + str(male.get_dropoffs()))
+        print("male dropoff total: " + str(male.get_total_dropoffs()))
         print("male total steps: " + str(male.get_total_steps()))
         male_steps_list = male.get_steps_list()
         print("total terminal states: " + str(len(male_steps_list)))
@@ -416,7 +427,7 @@ while game_bool:
         print("\n")
 
         print("---Female Data---")
-        print("Female dropoff total: " + str(female.get_dropoffs()))
+        print("Female dropoff total: " + str(female.get_total_dropoffs()))
         print("Female total steps: " + str(female.get_total_steps()))
         female_steps_list = female.get_steps_list()
         print("total terminal states: " + str(len(female_steps_list)))

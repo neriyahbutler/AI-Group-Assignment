@@ -157,13 +157,14 @@ def check_if_best_blocked(agent, q_table, blocked_direction):
     actions = ["east", "west", "south", "north"]
     if blocked_direction == get_best_action(agent_pos, actions, q_table):
         agent.increment_blocked_counter()
+        agent.add_to_blocked_list()
 
 
 def q_learning(mode, agent, q_table, state_map, learning_rate, discount_factor):
     agent_pos = agent.get_coor()
     actions, blocked_direction = check_possible_actions(agent_pos, state_map)
     # check if other agent is blocking the best action
-    if blocked_direction != "":
+    if blocked_direction != "" and mode != "PRandom":
         check_if_best_blocked(agent, q_table, blocked_direction)
 
     action_to_perform = ""
@@ -666,4 +667,39 @@ def find_heatmap_distribution(heatmap):
             distribution_map[x][y] = (heatmap[x][y] / maxval)
 
     return total, distribution_map
+
+def wipe_experiment_stats(filedir):
+    filename = "experiment_statistics.txt"
+    location = "./{}/{}".format(filedir, filename)
+    if os.path.exists(location):
+        f = open(location, "r+")
+        f.truncate(0)
+    else:
+        f = open(location, "x")
+
+
+def write_run_stats(agentM, agentF, runnum, filedir):
+    filename = "experiment_statistics.txt"
+    agents = [agentM, agentF]
+    try:
+        os.mkdir(filedir)
+    except:
+        print("Directory {} already exists, saving file there".format(filedir))
+    updated_filedir = "./{}/{}".format(filedir, filename)
+    with open(updated_filedir, "a") as f:
+        f.write("\n\n---Run: {}---\n".format(runnum))
+        for agent in agents:
+            if agent == agentM:
+                f.write("Male Values:\n")
+            else:
+                f.write("Female Values:\n")
+            f.write("Steps taken: {}\n".format(agent.get_steps()))
+            f.write("Pickups Happen at Steps: {}\n".format(agent.get_steps_to_pickup()))
+            f.write("Drop-offs Happen at Steps: {}\n".format(agent.get_steps_to_dropoff()))
+            f.write("Agent Did {} Dropoffs!\n".format(agent.get_dropoffs()))
+            if agent.get_blocked_counter() == 0:
+                f.write("This agent was not blocked :)\n")
+            else:
+                f.write("Agent was blocked {} times!\n".format(agent.get_blocked_counter()))
+                f.write("Blocking happened at steps: {}\n".format(agent.get_steps_blocked_at()))
 

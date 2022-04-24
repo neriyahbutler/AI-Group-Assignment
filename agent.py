@@ -65,11 +65,19 @@ class Agent(object):
     
     def get_dropoffs(self):
         return self.dropoffs
-    
+
+    def get_total_dropoffs(self):
+        return self.total_dropoffs
+
     def add_steps_to_list(self):
         self.terminal_state_steps.append(self.steps)
         self.total_steps += self.steps
+        self.total_dropoffs += self.dropoffs
+        self.steps_to_pick_up = []
+        self.steps_to_dropoff = []
+        self.step_blocked_at = []
         self.steps = 0
+        self.dropoffs = 0
     
     def get_total_steps(self):
         return self.total_steps
@@ -100,3 +108,23 @@ class Agent(object):
         self.times_blocked_terminate.append(self.times_blocked)
         self.total_times_blocked += self.times_blocked
         self.times_blocked = 0
+
+    def get_steps_to_dropoff(self):
+        return self.steps_to_dropoff
+
+    def get_steps_to_pickup(self):
+        return self.steps_to_pick_up
+
+    def get_steps_blocked_at(self):
+        return self.step_blocked_at
+
+    def add_to_pickup_list(self):
+        self.steps_to_pick_up.append(self.steps)
+
+    def add_to_dropoff_list(self):
+        self.steps_to_dropoff.append(self.steps)
+
+    def add_to_blocked_list(self):
+        self.step_blocked_at.append(self.steps)
+
+
