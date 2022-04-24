@@ -57,8 +57,8 @@ heatmap_female_dropoff = helper_functions.generate_heatMap()
 pickup_positions = [[4,2], [1,3]]
 dropoff_positions = [[4,0], [2,2], [0,0], [4,4]]
 
-male_start_position = [4,2]
-female_start_position = [0,2]
+male_start_position = [2,4]
+female_start_position = [2,0]
 
 male.set_coor(male_start_position)
 female.set_coor(female_start_position)
@@ -202,8 +202,7 @@ while game_bool:
         helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, len(male.get_steps_list()) + 1, win)     
 
         if male_turn_bool:
-            # print("\n")
-            # print("male turn!")
+
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -278,7 +277,7 @@ while game_bool:
             
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-            # print("occupied: ", current_pos[0], current_pos[1])
+
             if male.get_coor() == female.get_coor():
                 pygame.time.wait(1000)
                 print("stacked")
@@ -287,8 +286,6 @@ while game_bool:
             male_turn_bool = False
             
         else:
-            # print("\n")
-            # print("female turn!")
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -363,7 +360,7 @@ while game_bool:
             
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-            # print("occupied: ",current_pos[0], current_pos[1])
+
             game_board_positions[current_pos_as_key]["occupied"] = True
             female_next_action = next_action
             male_turn_bool = True
