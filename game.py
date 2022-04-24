@@ -184,7 +184,7 @@ while game_bool:
 
     # Pauses the script for 50 miliseconds so it can be easier to follow but not take forever. If you want to change the amount of pauses behind
     # each move, modify the number
-    pygame.time.wait(1000)
+    pygame.time.wait(1)
     
     if test_bool:
         # Fills out the background of the visualization window with black
@@ -199,8 +199,6 @@ while game_bool:
         helper_functions.display_game_details(male, female, dropoff_count_max, pickup_count, len(male.get_steps_list()) + 1, win)     
 
         if male_turn_bool:
-            print("\n")
-            print("male turn!")
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -270,7 +268,7 @@ while game_bool:
             
             current_pos = male.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-            print("occupied: ", current_pos[0], current_pos[1])
+            
             if male.get_coor() == female.get_coor():
                 pygame.time.wait(1000)
                 print("stacked")
@@ -279,8 +277,6 @@ while game_bool:
             male_turn_bool = False
             
         else:
-            print("\n")
-            print("female turn!")
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
 
@@ -350,7 +346,7 @@ while game_bool:
             
             current_pos = female.get_coor()
             current_pos_as_key = "{},{}".format(current_pos[0], current_pos[1])
-            print("occupied: ",current_pos[0], current_pos[1])
+           
             game_board_positions[current_pos_as_key]["occupied"] = True
             female_next_action = next_action
             male_turn_bool = True

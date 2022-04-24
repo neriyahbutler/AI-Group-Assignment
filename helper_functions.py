@@ -219,17 +219,15 @@ def sarsa_learning(agent, q_table, state_map, learning_rate, discount_factor, po
     actions = []
     agent_start = agent_pos[:]
     actions = check_available_moves(agent, agent_pos, state_map)
-    print("Agent at coordinate --> x: " + str(agent_pos[0]) + " y: " + str(agent_pos[1]))
+
     
     if steps <= 500: #PRandom
         if action_to_perform in actions:
             current_q_value = q_table[agent_start[0]][agent_start[1]][action_to_perform]
         else:
             current_q_value, action_to_perform = PRandom(actions,q_table, agent_pos)
-        
-        print("Current action to perform: " + action_to_perform + "\n ------> next action set")
+
         next_q_value, reward, next_action, state_map = Random_Q(action_to_perform, q_table, state_map, agent_pos,agent)
-        print("Next action taken: " + next_action)
     else: #PExploit
         if action_to_perform in actions:
             current_q_value = q_table[agent_start[0]][agent_start[1]][action_to_perform]
@@ -262,7 +260,7 @@ def check_available_moves(agent, agent_pos, state_map):
     if move_up >= 0 and state_map["{},{}".format(agent_pos[0], move_up)]["occupied"] == False:
         actions.append("north")
     
-    print("Current actions: " + str(actions))
+    
     return actions
 
 
