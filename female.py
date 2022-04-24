@@ -1,3 +1,5 @@
+import numpy as np
+
 import agent
 
 class Female(agent.Agent):
@@ -14,6 +16,8 @@ class Female(agent.Agent):
         self.step_blocked_at = []
         self.total_times_blocked = 0
         self.times_blocked_terminate = []
+        self.visits = np.zeros((4, 1), dtype=int)
+        self.total_visits = np.zeros((4, 1), dtype=int)
 
     def get_symbol(self):
         return self.symbol

@@ -1,5 +1,6 @@
 import os
 import pygame
+import numpy as np
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -73,11 +74,13 @@ class Agent(object):
         self.terminal_state_steps.append(self.steps)
         self.total_steps += self.steps
         self.total_dropoffs += self.dropoffs
+        self.total_visits += self.visits
         self.steps_to_pick_up = []
         self.steps_to_dropoff = []
         self.step_blocked_at = []
         self.steps = 0
         self.dropoffs = 0
+        self.visits = np.zeros((4, 1), dtype=int)
     
     def get_total_steps(self):
         return self.total_steps
@@ -126,5 +129,16 @@ class Agent(object):
 
     def add_to_blocked_list(self):
         self.step_blocked_at.append(self.steps)
+
+    def get_visit(self):
+        return self.visits
+
+    def get_total_visits(self):
+        return self.total_visits
+
+    def dropoff_visit(self, pos, dropoff_positions):
+        for i in range(len(dropoff_positions)):
+            if pos == dropoff_positions[i]:
+                self.visits[i] += 1
 
 
