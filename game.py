@@ -141,14 +141,32 @@ female_next_action = ""
 next_action = ""
 time_array = []
 start_time = 0
+
 if experiment_input == "3":
-    learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
-    discount_factor = helper_functions.experiment_settings[experiment_input][2][1]
+    lr_provided = False
+    while lr_provided is False:
+        lr_option = input("Learning rate of 0.15, 0.30, 0.45? ('1', '2', '3'): ")
+        if lr_option not in ["1", "2", "3"]:
+            print("Not valid input")
+            continue
+        else:
+            lr_provided = True
+            if lr_option == "1":
+                learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
+            if lr_option == "2":
+                pass
+            elif lr_option == "3":
+                learning_rate = helper_functions.experiment_settings[experiment_input][2][1]
 
 if experiment_input == "4":
     doing_experiment_4 = True
 
-helper_functions.wipe_experiment_stats("exp-{}".format(experiment_input))
+if experiment_input == "3":
+    filedir = "exp-{}/lr-{}".format(experiment_input, learning_rate)
+else:
+    filedir = "exp-{}".format(experiment_input)
+
+helper_functions.wipe_experiment_stats(filedir)
 print("Working. This will take a moment!")
 
 start_time = time.time()
@@ -374,7 +392,7 @@ while game_bool:
  
     # This is responsible for updating the graphics that represent the pickup and dropoff spots
     if helper_functions.check_dropoff_capacity(game_board_positions, dropoff_positions):
-        helper_functions.write_run_stats(male, female, len(male.get_steps_list())+1, "exp-{}".format(experiment_input), dropoff_positions)
+        helper_functions.write_run_stats(male, female, len(male.get_steps_list())+1, filedir, dropoff_positions)
         male_next_action = ""
         female_next_action = ""
         male.add_steps_to_list()
@@ -407,21 +425,22 @@ while game_bool:
     if steps <= 0:
         test_bool = False
         game_bool = False
+
         if(experiment_input == '2' or experiment_input == '1c'):
             helper_functions.make_graphs_exp2(male,female,experiment_input)
-        helper_functions.save_qtables_in_text_file(q_table_male_pickup, "exp-{}".format(experiment_input), "q_table_male_pickup.txt")
-        helper_functions.save_qtables_in_text_file(q_table_male_dropoff, "exp-{}".format(experiment_input), "q_table_male_dropoff.txt")
-        helper_functions.save_qtables_in_text_file(q_table_female_pickup, "exp-{}".format(experiment_input), "q_table_female_pickup.txt")
-        helper_functions.save_qtables_in_text_file(q_table_female_dropoff, "exp-{}".format(experiment_input), "q_table_female_dropoff.txt")
-        helper_functions.save_heatmaps_in_text_file(heatmap_male_dropoff, heatmap_male_pickup, heatmap_female_dropoff, heatmap_female_pickup, "exp-{}".format(experiment_input))
+        helper_functions.save_qtables_in_text_file(q_table_male_pickup, filedir, "q_table_male_pickup.txt")
+        helper_functions.save_qtables_in_text_file(q_table_male_dropoff, filedir, "q_table_male_dropoff.txt")
+        helper_functions.save_qtables_in_text_file(q_table_female_pickup, filedir, "q_table_female_pickup.txt")
+        helper_functions.save_qtables_in_text_file(q_table_female_dropoff, filedir, "q_table_female_dropoff.txt")
+        helper_functions.save_heatmaps_in_text_file(heatmap_male_dropoff, heatmap_male_pickup, heatmap_female_dropoff, heatmap_female_pickup, filedir)
 
         helper_functions.generate_attractive_paths_image(win, male, female,
             game_board_positions, game_board,
             pickup_positions, dropoff_positions,
             q_table_male_pickup, q_table_male_dropoff,
-            q_table_female_pickup, q_table_female_dropoff, './exp-{}/'.format(experiment_input))
+            q_table_female_pickup, q_table_female_dropoff, filedir)
 
-        helper_functions.write_final_stats(male, female, "exp-{}".format(experiment_input), dropoff_positions)
+        helper_functions.write_final_stats(male, female, filedir, dropoff_positions)
 
     if steps > 8000 - helper_functions.experiment_settings[experiment_input][0][0]:
         current_policy = helper_functions.experiment_settings[experiment_input][0][1]
