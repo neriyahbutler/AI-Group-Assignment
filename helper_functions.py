@@ -587,21 +587,21 @@ def generate_attractive_paths_image(win, male, female, state_map, game_board,
         display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
         display_arrows(win, q_table_male_pickup)
 
-        pygame.image.save(win, "{}attractive_paths_pickup_male.jpeg".format(path))
+        pygame.image.save(win, "./{}/attractive_paths_pickup_male.jpeg".format(path))
 
         display_game_board(win, game_board)
         display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
         display_male_female_agents(win, male, female)
         display_arrows(win, q_table_male_dropoff)
 
-        pygame.image.save(win, "{}attractive_paths_dropoff_male.jpeg".format(path))
+        pygame.image.save(win, "./{}/attractive_paths_dropoff_male.jpeg".format(path))
 
         display_game_board(win, game_board)
         display_dropoff_pickup_locations(win, pickup_positions, dropoff_positions, state_map)
         display_male_female_agents(win, male, female)
         display_arrows(win, q_table_female_pickup)
 
-        pygame.image.save(win, "{}attractive_paths_pickup_female.jpeg".format(path))
+        pygame.image.save(win, "./{}/attractive_paths_pickup_female.jpeg".format(path))
         
 
         display_game_board(win, game_board)
@@ -609,7 +609,7 @@ def generate_attractive_paths_image(win, male, female, state_map, game_board,
         display_male_female_agents(win, male, female)
         display_arrows(win, q_table_female_dropoff)
 
-        pygame.image.save(win, "{}attractive_paths_dropoff_female.jpeg".format(path))
+        pygame.image.save(win, "./{}/attractive_paths_dropoff_female.jpeg".format(path))
 
 
 def save_qtables_in_text_file(q_table, filedir="test", filename="test.txt"):
