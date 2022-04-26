@@ -8,6 +8,7 @@ class Female(agent.Agent):
         self.total_steps = 0
         self.steps = 0
         self.dropoffs = 0
+        self.dropoffs_list = []
         self.total_dropoffs = 0
         self.steps_to_pick_up = []
         self.steps_to_dropoff = []

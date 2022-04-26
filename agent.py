@@ -74,6 +74,7 @@ class Agent(object):
         self.terminal_state_steps.append(self.steps)
         self.total_steps += self.steps
         self.total_dropoffs += self.dropoffs
+        self.dropoffs_list.append(self.dropoffs)
         self.total_visits += self.visits
         self.steps_to_pick_up = []
         self.steps_to_dropoff = []
@@ -140,5 +141,7 @@ class Agent(object):
         for i in range(len(dropoff_positions)):
             if pos == dropoff_positions[i]:
                 self.visits[i] += 1
-
+    
+    def get_dropoffs_list(self):
+        return self.dropoffs_list
 

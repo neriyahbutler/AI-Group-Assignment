@@ -2,7 +2,7 @@ import pygame
 import os
 import numpy as np
 import sys
-
+import time
 import random
 
 pygame.init()
@@ -139,7 +139,8 @@ policy_epsilon = 0.2
 male_next_action = ""
 female_next_action = ""
 next_action = ""
-
+time_array = []
+start_time = 0
 if experiment_input == "3":
     learning_rate = helper_functions.experiment_settings[experiment_input][2][0]
     discount_factor = helper_functions.experiment_settings[experiment_input][2][1]
@@ -150,10 +151,12 @@ if experiment_input == "4":
 helper_functions.wipe_experiment_stats("exp-{}".format(experiment_input))
 print("Working. This will take a moment!")
 
+start_time = time.time()
+
 while game_bool:
     # Fills out the background of the visualization window with black
     win.fill((0))
-
+    
     # For handling closing out the visualization window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -378,6 +381,8 @@ while game_bool:
         female.add_steps_to_list()
         male.add_blocking_to_list()
         female.add_blocking_to_list()
+        time_array.append(time.time()-start_time)
+        start_time = time.time()
         male, female, game_board_positions = helper_functions.reset_world(male, female, game_board_positions, pickup_positions, dropoff_positions, pickup_count, [male_start_position, female_start_position])
         for pos in pickup_positions:
             game_board_positions['{},{}'.format(pos[0], pos[1])]["special_block"].update_symbol()
@@ -402,7 +407,8 @@ while game_bool:
     if steps <= 0:
         test_bool = False
         game_bool = False
-
+        if(experiment_input == '2' or experiment_input == '1c'):
+            helper_functions.make_graphs_exp2(male,female,experiment_input)
         helper_functions.save_qtables_in_text_file(q_table_male_pickup, "exp-{}".format(experiment_input), "q_table_male_pickup.txt")
         helper_functions.save_qtables_in_text_file(q_table_male_dropoff, "exp-{}".format(experiment_input), "q_table_male_dropoff.txt")
         helper_functions.save_qtables_in_text_file(q_table_female_pickup, "exp-{}".format(experiment_input), "q_table_female_pickup.txt")

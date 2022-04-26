@@ -1,4 +1,5 @@
 import random
+from re import sub
 
 import numpy as np
 import random
@@ -13,6 +14,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -746,3 +748,134 @@ def write_final_stats(agentM, agentF, filedir, dropoff_locations):
             f.write("\n")
         print("All results available in the {} directory!".format(filedir))
 
+def make_steps_time_each_run_graph(male, female):
+    plt.clf()
+
+    sns.set_style("dark")
+    inputArraySteps = male.get_steps_list()
+    
+    print("loading steps per terminal step on to graph...")
+    
+    
+    df_dict = {"terminal states":[],"steps":[]}
+    for i in range(0,len(inputArraySteps)):
+        df_dict["terminal states"].append(i+1)
+    
+    for terminal_steps in inputArraySteps:
+        df_dict["steps"].append(terminal_steps)
+
+    df = pd.DataFrame(df_dict)
+    
+    graph = sns.lineplot(data=df, x="terminal states", y="steps",estimator=None,)
+    
+    plt.ylabel("steps per terminal state")
+    plt.title("Male Steps per Terminal State")
+
+    
+
+
+    graph.get_figure().savefig("./exp-2/male_steps_graph.jpeg", transparent=True)
+    plt.clf()
+    inputArraySteps = female.get_steps_list()
+    
+    
+    df_dict["steps"].clear()
+    for terminal_steps in inputArraySteps:
+        df_dict["steps"].append(terminal_steps)
+    
+    df = pd.DataFrame(df_dict)
+    
+    graph_female = sns.lineplot(data=df, x="terminal states", y="steps",estimator=None,color='r')
+    plt.ylabel("steps per terminal state")
+    plt.title("Female Steps per Terminal State")
+
+    graph_female.get_figure().savefig("./exp-2/female_steps_graph.jpeg", transparent=True)
+
+    #print("exporting results in exp-2 directory....")
+
+def make_dropoffs_per_terminal_state_graph(male,female):
+    plt.clf()
+    df_dict = {"dropoffs":[],"steps":[]}
+    sns.set_style("dark")
+
+    input = male.get_dropoffs_list()
+    terminal_steps = male.get_steps_list()
+
+    for steps in terminal_steps:
+        df_dict["steps"].append(steps)
+
+    for dropoffs in input:
+        df_dict["dropoffs"].append(dropoffs)
+
+    df = pd.DataFrame(df_dict)
+    graph = sns.lineplot(data=df, x = "dropoffs", y = "steps",color="b")
+
+    plt.ylabel("steps")
+    plt.title("Male Steps per Dropoffs")
+
+    graph.get_figure().savefig("./exp-2/male_dropoffs_graph.jpeg", transparent=True)
+    plt.clf()
+    input = female.get_dropoffs_list()
+    terminal_steps = female.get_steps_list()
+
+    for dropoffs in input:
+        df_dict["dropoffs"].append(dropoffs)
+    
+    for steps in terminal_steps:
+        df_dict["steps"].append(steps)
+    
+
+    df = pd.DataFrame(df_dict)
+    graph_female = sns.lineplot(data=df, x = "dropoffs", y = "steps",color="r")
+
+    plt.ylabel("steps")
+    plt.title("Female Steps per Dropoffs")
+
+    graph_female.get_figure().savefig("./exp-2/female_dropoffs_graph.jpeg", transparent=True)
+    
+def make_collision_graph(male,female,experiment):
+    plt.clf()
+    fig, ax1 = plt.subplots(figsize=(12,6))
+
+    
+
+    input = male.get_blocked_list()
+    
+    df_dict = {"times_blocked": [],"terminal states":[]}
+    i =1
+    for count in input:
+        df_dict["times_blocked"].append(count)
+        df_dict["terminal states"].append(i)
+        i += 1
+    
+    df = pd.DataFrame(df_dict)
+
+    ax1.set_title("Male vs Female Collisions per Terminal State")
+    ax1.set_xlabel("terminal states")
+    ax1.set_ylabel("times blocked")
+    ax1 = sns.lineplot(data=df, x = "terminal states", y ="times_blocked")
+    ax1.tick_params(axis='y')
+    
+
+    input = female.get_blocked_list()
+
+    i =1
+    for count in input:
+        df_dict["times_blocked"].append(count)
+        df_dict["terminal states"].append(i)
+        i += 1
+
+    df = pd.DataFrame(df_dict)
+
+    ax1 = sns.lineplot(data=df, x = "terminal states", y ="times_blocked", color = 'r')
+    ax1.tick_params(axis='y')
+    ax1.legend(labels=["Male","Female"])
+    if experiment == '2':
+
+        fig.savefig("./exp-2/SARSA/Collision-Graph-Run.jpeg", transparent = True)
+    elif experiment == '1c':
+        fig.savefig("./exp-2/Q-Learning/Collision-Graph-Run.jpeg", transparent = True)
+
+
+def make_graphs_exp2(male,female,experiment):
+    make_collision_graph(male,female,experiment)
