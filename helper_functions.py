@@ -748,7 +748,7 @@ def write_final_stats(agentM, agentF, filedir, dropoff_locations):
             f.write("\n")
         print("All results available in the {} directory!".format(filedir))
 
-def make_steps_time_each_run_graph(male, female):
+def make_steps_time_each_run_graph(male, female,experiment):
     plt.clf()
 
     sns.set_style("dark")
@@ -773,8 +773,11 @@ def make_steps_time_each_run_graph(male, female):
 
     
 
+    if experiment == '2':
+        graph.get_figure().savefig("./exp-2/SARSA/male_steps_graph-Demo.jpeg", transparent=True)
+    elif experiment == '1c':
+        graph.get_figure().savefig("./exp-2/Q-Learning/male_steps_graph-Demo.jpeg", transparent=True)
 
-    graph.get_figure().savefig("./exp-2/male_steps_graph.jpeg", transparent=True)
     plt.clf()
     inputArraySteps = female.get_steps_list()
     
@@ -788,12 +791,13 @@ def make_steps_time_each_run_graph(male, female):
     graph_female = sns.lineplot(data=df, x="terminal states", y="steps",estimator=None,color='r')
     plt.ylabel("steps per terminal state")
     plt.title("Female Steps per Terminal State")
-
-    graph_female.get_figure().savefig("./exp-2/female_steps_graph.jpeg", transparent=True)
-
+    if experiment == '2':
+        graph_female.get_figure().savefig("./exp-2/SARSA/female_steps_graph-Demo.jpeg", transparent=True)
+    elif experiment == '1c':
+        graph_female.get_figure().savefig("./exp-2/Q-Learning/female_steps_graph-Demo.jpeg", transparent=True)
     #print("exporting results in exp-2 directory....")
 
-def make_dropoffs_per_terminal_state_graph(male,female):
+def make_dropoffs_per_terminal_state_graph(male,female,experiment):
     plt.clf()
     df_dict = {"dropoffs":[],"steps":[]}
     sns.set_style("dark")
@@ -812,8 +816,10 @@ def make_dropoffs_per_terminal_state_graph(male,female):
 
     plt.ylabel("steps")
     plt.title("Male Steps per Dropoffs")
-
-    graph.get_figure().savefig("./exp-2/male_dropoffs_graph.jpeg", transparent=True)
+    if experiment == '2':
+        graph.get_figure().savefig("./exp-2/SARSA/male_dropoffs_graph-Demo.jpeg", transparent=True)
+    elif experiment == '1c':
+        graph.get_figure().savefig("./exp-2/Q-Learning/male_dropoffs_graph-Demo.jpeg", transparent=True)
     plt.clf()
     input = female.get_dropoffs_list()
     terminal_steps = female.get_steps_list()
@@ -830,8 +836,10 @@ def make_dropoffs_per_terminal_state_graph(male,female):
 
     plt.ylabel("steps")
     plt.title("Female Steps per Dropoffs")
-
-    graph_female.get_figure().savefig("./exp-2/female_dropoffs_graph.jpeg", transparent=True)
+    if experiment == '2':
+        graph_female.get_figure().savefig("./exp-2/SARSA/female_dropoffs_graph.jpeg", transparent=True)
+    elif experiment == '1c':
+        graph_female.get_figure().savefig("./exp-2/Q-Learning/female_dropoffs_graph.jpeg", transparent=True)
     
 def make_collision_graph(male,female,experiment):
     plt.clf()
@@ -872,10 +880,12 @@ def make_collision_graph(male,female,experiment):
     ax1.legend(labels=["Male","Female"])
     if experiment == '2':
 
-        fig.savefig("./exp-2/SARSA/Collision-Graph-Run.jpeg", transparent = True)
+        fig.savefig("./exp-2/SARSA/Collision-Graph-Demo.jpeg", transparent = True)
     elif experiment == '1c':
-        fig.savefig("./exp-2/Q-Learning/Collision-Graph-Run.jpeg", transparent = True)
+        fig.savefig("./exp-2/Q-Learning/Collision-Graph-Demo.jpeg", transparent = True)
 
 
 def make_graphs_exp2(male,female,experiment):
     make_collision_graph(male,female,experiment)
+    make_dropoffs_per_terminal_state_graph(male,female,experiment)
+    make_steps_time_each_run_graph(male,female,experiment)
